@@ -31,7 +31,9 @@
 (defun dot-product-rec (u v)
 	(if (or (null u) (null v))
 	   	0
-	   	(+ (* (first u) (first v)) (dot-product-rec (rest u) (rest v)))))
+	   	(+ (* (first u)
+	   		(first v))
+	   	(dot-product-rec (rest u) (rest v)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; defun 2-norm-rec (v)
@@ -56,7 +58,9 @@
 (defun sc-rec (x y)
 	(if (not (is-ok x y))
 		nil
-		(/ (dot-product-rec x y) (* (2-norm-rec x) (2-norm-rec y)))))
+		(/ (dot-product-rec x y)
+			(* (2-norm-rec x)
+				(2-norm-rec y)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; dot-product-mapcar (u v)
@@ -93,7 +97,9 @@
 (defun sc-mapcar (x y)
 	(if (not (is-ok x y))
 		nil
-		(/ (dot-product-mapcar x y) (* (2-norm-mapcar x) (2-norm-mapcar y)))))
+		(/ (dot-product-mapcar x y)
+			(* (2-norm-mapcar x)
+				(2-norm-mapcar y)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;1.2;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -108,10 +114,49 @@
 ;;; OUTPUT: Vectores cuya similitud es superior al nivel de confianza, ordenados
 ;;;
 (defun sc-conf (x vs conf)
-	(mapcar #'rest (sort (remove nil (mapcar #'(lambda (z) (sc-conf-ind x z conf)) vs)) #'> :key #'first)))
+	(mapcar #'rest
+		(sort
+			(remove nil
+				(mapcar #'(lambda (z) (sc-conf-ind x z conf)) vs))
+			#'> :key #'first)))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; sc-conf-ind (x v conf)
+;;; Devuelve la similitud de un vector a una categoria seguida del vector,
+;;; siempre que sea mayor que la confianza
+;;;
+;;; INPUT: x: vector, representado como una lista
+;;; v: vector, representado como una lista
+;;; conf: Nivel de confianza
+;;;
+;;; OUTPUT: Cons cuyo car es la similitud y cuyo cdr es el vector
+;;;
 (defun sc-conf-ind (x v conf)
 	(let ((sc (sc-rec x v)))
 		(if (or (null sc) (<= sc conf))	; si la similitud se ha podido hacer, y es mayor que conf
 			nil
 			(cons sc v))))				; mete la similitud como primer elemento, luego la quitaremos
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;1.3;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; sc-classifier (cats texts func)
+;; Clasifica a los textos en categorías.
+;;;
+;;; INPUT: cats: vector de vectores, representado como una lista de listas
+;;; vs: vector de vectores, representado como una lista de listas
+;;; func: referencia a función para evaluar la similitud coseno
+;;; OUTPUT: Pares identificador de categoría con resultado de similitud coseno
+;;;
+(defun sc-classifier (cats texts func)
+	(if (null texts)
+		nil 													; caso base	
+		(cons (reduce #'(lambda (x y)							; saca tupla (id, sc) con el maximo sc
+							(if (> (rest x) (rest y))
+								x
+								y))
+						(mapcar #'(lambda (cat)					; saca una lista con tuplas (id, sc) para cada categoria
+										(cons (first cat)
+										(funcall func (rest cat) (rest (first texts))))) ; aplica la funcion para sacar sc
+									cats))
+			(sc-classifier cats (rest texts) func))))			; concateno este par con una lista de los pares siguientes
