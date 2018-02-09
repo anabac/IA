@@ -1,6 +1,25 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;1.1;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; is-ok (u v)
+;;; Comprueba que dos vectores son del mismo tamaño y no contienen numeros negativos
+;;;
+;;; INPUT: u: vector, representado como una lista
+;;; v: vector, representado como una lista
+;;;
+;;; OUTPUT: T: cumplen las condiciones
+;;; NIL: no cumplen alguna condicion
+;;;
+(defun is-ok (u v)
+           (if (and (null u) (null v))
+               t                                                                        ; caso base
+               (and (is-ok (rest u) (rest v)) (not                                      ; not para que sea NIL si cumple alguna
+                                                   (or (and (null u) (not (null v)))    ; v mas largo que u
+                                                       (and (null v) (not (null u)))    ; u mas largo que v
+                                                       (minusp (first u))               ; u contiene negativo
+                                                       (minusp (first v)))))))          ; v contiene negativo
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; dot-product-rec (u v)
 ;;; Calcula el producto escalar de dos vectores de forma recursiva
 ;;;
@@ -35,9 +54,9 @@
 ;;; OUTPUT: similitud coseno entre x e y
 ;;;
 (defun sc-rec (x y)
-	(if (or (some #'minusp x) (some #'minusp y))
+	(if (not (is-ok x y))
 		nil
-		(/ (dot-product-rec x y) (* (2-norm-rec x) (2-norm-rec y))))
+		(/ (dot-product-rec x y) (* (2-norm-rec x) (2-norm-rec y)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; dot-product-mapcar (u v)
@@ -49,7 +68,7 @@
 ;;; OUTPUT: producto escalar de u y v ( uÂ·v )
 ;;;
 (defun dot-product-mapcar (u v)
-	(reduce #'+ (mapcar #'* u v))
+	(reduce #'+ (mapcar #'* u v)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; defun 2-norm-rec (v)
@@ -72,9 +91,9 @@
 ;;; OUTPUT: similitud coseno entre x e y
 ;;;
 (defun sc-mapcar (x y)
-	(if (or (some #'minusp x) (some #'minusp y))
+	(if (not (is-ok x y))
 		nil
-		(/ (dot-product-mapcar x y) (* (2-norm-mapcar x) (2-norm-mapcar y))))
+		(/ (dot-product-mapcar x y) (* (2-norm-mapcar x) (2-norm-mapcar y)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;1.2;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -88,4 +107,11 @@
 ;;;
 ;;; OUTPUT: Vectores cuya similitud es superior al nivel de confianza, ordenados
 ;;;
-(defun sc-conf (x vs conf) ...)
+(defun sc-conf (x vs conf)
+	(mapcar #'rest (sort (remove nil (mapcar #'(lambda (z) (sc-conf-ind x z conf)) vs)) #'> :key #'first)))
+
+(defun sc-conf-ind (x v conf)
+	(let ((sc (sc-rec x v)))
+		(if (or (null sc) (<= sc conf))	; si la similitud se ha podido hacer, y es mayor que conf
+			nil
+			(cons sc v))))				; mete la similitud como primer elemento, luego la quitaremos
