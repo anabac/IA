@@ -185,36 +185,68 @@
          (sigb (> fb 0))             ; signo de f(b)
          (sigm (> fm 0)))            ; signo de f(m)
     (cond ((xnor siga sigb)          ; si f(a) y f(b) tienen el mismo signo
-            nil)
-           ((= fa 0)                 ; condicion de parada
-            a)
-           ((= fb 0)                 ; condicion de parada
-            b)
-           ((= fm 0)                 ; condicion de parada
-            m)
-           ((< (- b a) tol)          ; condicion de parada
-            m)
-           ((xnor sigm sigb)         ; si f(m) y f(b) tienen el mismo signo, f(a) y f(b) lo tienen distinto
-            (bisect f a m tol))
-           (t                        ; solo puede pasar que f(m) y f(b) tengan distinto signo
-            (bisect f m b tol)))))
+           nil)
+          ((= fa 0)                 ; condicion de parada
+           a)
+          ((= fb 0)                 ; condicion de parada
+           b)
+          ((= fm 0)                 ; condicion de parada
+           m)
+          ((< (- b a) tol)          ; condicion de parada
+           m)
+          ((xnor sigm sigb)         ; si f(m) y f(b) tienen el mismo signo, f(a) y f(b) lo tienen distinto
+           (bisect f a m tol))
+          (t                        ; solo puede pasar que f(m) y f(b) tengan distinto signo
+           (bisect f m b tol)))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;2.2;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Finds all the roots that are located between consecutive values of a list
+;; of values
+;;
+;; INPUT:
+;;
+;; f: function of a single real parameter with real values whose root
+;; we want to find
+;; lst: ordered list of real values (lst[i] < lst[i+1])
+;; tol: tolerance for the stopping criterion: if b-a < tol the function
+;; returns (a+b)/2 as a solution.
+;;
+;; Whenever sgn(f(lst[i])) != sgn(f(lst[i+1])) this function looks for a
+;; root in the corresponding interval.
+;;
+;; OUTPUT:
+;; A list o real values containing the roots of the function in the
+;; given sub-intervals
+;;
+(defun allroot (f lst tol)
+  (if (null (rest lst))                                   ; de parada (si queda solo un elemento, para)
+      nil
+    (let ((root (bisect f (first lst) (second lst) tol)))
+      (if (null root)                                     ; si no puedo encontrar raiz en el intervalo
+          (allroot f (rest lst) tol)                      ; devuelvo las siguientes
+        (cons root                                        ; si la encuentro, la añado a la lista
+              (allroot f (rest lst) tol))))))
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;3.1;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   
-  
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;3.1;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  ;;; combine-elt-lst (elt lst)
-  ;;; Combina el elemento dado con cada elemento de la lista dada
-  ;;;
-  ;;; INPUT: elt: elemento (atomo) a combinar con los elementos de la lista
-  ;;; lst: lista de elementos con cada uno de los cuales ha de combinarse el elemento para formar una lista combinada
-  ;;; OUTPUT: Lista de pares (elt, elemento_lista)
-  ;;;
-  (defun combine-elt-lst (ele lst)
-    (if (or (null ele) (null lst))
-        NIL
-      (mapcar #'(lambda (list1) 				; recorro toda la lista y creo una lista de listas (ele, ele_lista) 
-                  (list ele list1)) lst)))        ; list1 el el parametro de mi lambda, lst la lista que nos pasan y la funcion list nos hace listas (ele, ele_lista) 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; combine-elt-lst (elt lst)
+;;; Combina el elemento dado con cada elemento de la lista dada
+;;;
+;;; INPUT: elt: elemento (atomo) a combinar con los elementos de la lista
+;;; lst: lista de elementos con cada uno de los cuales ha de combinarse el elemento para formar una lista combinada
+;;; OUTPUT: Lista de pares (elt, elemento_lista)
+;;;
+(defun combine-elt-lst (ele lst)
+  (if (or (null ele) (null lst))
+      NIL
+    (mapcar #'(lambda (list1) 			; recorro toda la lista y creo una lista de listas (ele, ele_lista) 
+                (list ele list1)) lst)))        ; list1 el el parametro de mi lambda, lst la lista que nos pasan y la funcion list nos hace listas (ele, ele_lista) 
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;3.2;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
