@@ -147,21 +147,74 @@
 
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;3.1;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;2.1;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; combine-elt-lst (elt lst)
-;;; Combina el elemento dado con cada elemento de la lista dada
+;;; xnor (a b)
+;;; Negacion del OR exclusivo, devuelve T si a y b tienen el mismo valor.
 ;;;
-;;; INPUT: elt: elemento (atomo) a combinar con los elementos de la lista
-;;; lst: lista de elementos con cada uno de los cuales ha de combinarse el elemento para formar una lista combinada
-;;; OUTPUT: Lista de pares (elt, elemento_lista)
+;;; INPUT: a: booleano
+;;; b: booleano
 ;;;
-(defun combine-elt-lst (ele lst)
-	(if (or (null ele) (null lst))
-		NIL
-		(mapcar #'(lambda (list1) 				; recorro toda la lista y creo una lista de listas (ele, ele_lista) 
-					(list ele list1)) lst)))        ; list1 el el parametro de mi lambda, lst la lista que nos pasan y la funcion list nos hace listas (ele, ele_lista) 
+;;; OUTPUT: T si a y b tienen el mismo valor, NIL en caso contrario
+;;;
+(defun xnor (a b)
+  (or (and a b)
+      (and (not a)
+           (not b))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Finds a root of f between the points a and b using bisection.
+;;
+;; If f(a)f(b)>=0 there is no guarantee that there will be a root in the
+;; interval, and the function will return NIL.
+;; INPUT:
+;; f: function of a single real parameter with real values whose root
+;; we want to find
+;; a: lower extremum of the interval in which we search for the root
+;; b: b>a upper extremum of the interval in which we search for the root
+;; tol: tolerance for the stopping criterion: if b-a < tol the function
+;; returns (a+b)/2 as a solution.
+;; OUTPUT: Root of the function, or NIL if no root is found
+(defun bisect (f a b tol)
+  (let* ((m (/ (+ a b) 2))
+         (fa (funcall f a))
+         (fb (funcall f b))
+         (fm (funcall f m))
+         (siga (> fa 0))
+         (sigb (> fb 0))
+         (sigm (> fm 0)))
+    (cond ((xnor siga sigb)
+            nil)
+           ((= fa 0)
+            a)
+           ((= fb 0)
+            b)
+           ((= fm 0)
+            m)
+           ((< (- b a) tol)
+            m)
+           ((xnor sigm sigb)
+            (bisect f a m tol))
+           (t
+            (bisect f m b tol)))))
+  
+  
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;3.1;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;;; combine-elt-lst (elt lst)
+  ;;; Combina el elemento dado con cada elemento de la lista dada
+  ;;;
+  ;;; INPUT: elt: elemento (atomo) a combinar con los elementos de la lista
+  ;;; lst: lista de elementos con cada uno de los cuales ha de combinarse el elemento para formar una lista combinada
+  ;;; OUTPUT: Lista de pares (elt, elemento_lista)
+  ;;;
+  (defun combine-elt-lst (ele lst)
+    (if (or (null ele) (null lst))
+        NIL
+      (mapcar #'(lambda (list1) 				; recorro toda la lista y creo una lista de listas (ele, ele_lista) 
+                  (list ele list1)) lst)))        ; list1 el el parametro de mi lambda, lst la lista que nos pasan y la funcion list nos hace listas (ele, ele_lista) 
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;3.2;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
