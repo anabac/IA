@@ -160,3 +160,18 @@
 										(funcall func (rest cat) (rest (first texts))))) ; aplica la funcion para sacar sc
 									cats))
 			(sc-classifier cats (rest texts) func))))			; concateno este par con una lista de los pares siguientes
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; combine-elt-lst (elt lst)
+;;; Combina el elemento dado con cada elemento de la lista dada
+;;;
+;;; INPUT: elt: elemento (atomo) a combinar con los elementos de la lista
+;;; lst: lista de elementos con cada uno de los cuales ha de combinarse el elemento para formar una lista combinada
+;;; OUTPUT: Lista de pares (elt, elemento_lista)
+;;;
+(defun combine-elt-lst (ele lst)
+	(if(or (null ele) (null lst))
+		NIL
+		(mapcar #'(lambda (list1) 								; recorro toda la lista y creo u8na lista de listas (ele, ele_lista) 
+								(list ele list1)) lst)))        ; list1 el el parametro de mi lambda, lst la lista que nos pasan y la funcion list nos hace listas (ele, ele_lista) 
