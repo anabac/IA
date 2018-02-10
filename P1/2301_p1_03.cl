@@ -162,6 +162,9 @@
 			(sc-classifier cats (rest texts) func))))			; concateno este par con una lista de los pares siguientes
 
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;3.1;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; combine-elt-lst (elt lst)
 ;;; Combina el elemento dado con cada elemento de la lista dada
@@ -171,7 +174,25 @@
 ;;; OUTPUT: Lista de pares (elt, elemento_lista)
 ;;;
 (defun combine-elt-lst (ele lst)
-	(if(or (null ele) (null lst))
+	(if (or (null ele) (null lst))
 		NIL
-		(mapcar #'(lambda (list1) 				; recorro toda la lista y creo u8na lista de listas (ele, ele_lista) 
+		(mapcar #'(lambda (list1) 				; recorro toda la lista y creo una lista de listas (ele, ele_lista) 
 					(list ele list1)) lst)))        ; list1 el el parametro de mi lambda, lst la lista que nos pasan y la funcion list nos hace listas (ele, ele_lista) 
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;3.2;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; combine-lst-lst (lst1 lst2)
+;;; Calcula el producto cartesiano de dos listas
+;;;
+;;; INPUT: lst1: una de las listas de las que se debe calcular el producto cartesiano 
+;;; lst2: la otra lista de las que se debe calcular el producto cartesiano
+;;; OUTPUT: lista producto cartesiano de lst1 y lst2
+;;;
+(defun combine-lst-lst (lst1 lst2)
+	(if (or (null lst1) (null lst2))
+		NIL
+		(mapcan (lambda (x) 
+          (mapcar (lambda (y) (list x y))
+                  lst2)) lst1)))
