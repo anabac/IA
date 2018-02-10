@@ -177,26 +177,26 @@
 ;; returns (a+b)/2 as a solution.
 ;; OUTPUT: Root of the function, or NIL if no root is found
 (defun bisect (f a b tol)
-  (let* ((m (/ (+ a b) 2))
-         (fa (funcall f a))
-         (fb (funcall f b))
-         (fm (funcall f m))
-         (siga (> fa 0))
-         (sigb (> fb 0))
-         (sigm (> fm 0)))
-    (cond ((xnor siga sigb)
+  (let* ((m (/ (+ a b) 2))           ; punto medio
+         (fa (funcall f a))          ; f(a)
+         (fb (funcall f b))          ; f(b)
+         (fm (funcall f m))          ; f(m)
+         (siga (> fa 0))             ; signo de f(a): T si positivo, NIL si negativo
+         (sigb (> fb 0))             ; signo de f(b)
+         (sigm (> fm 0)))            ; signo de f(m)
+    (cond ((xnor siga sigb)          ; si f(a) y f(b) tienen el mismo signo
             nil)
-           ((= fa 0)
+           ((= fa 0)                 ; condicion de parada
             a)
-           ((= fb 0)
+           ((= fb 0)                 ; condicion de parada
             b)
-           ((= fm 0)
+           ((= fm 0)                 ; condicion de parada
             m)
-           ((< (- b a) tol)
+           ((< (- b a) tol)          ; condicion de parada
             m)
-           ((xnor sigm sigb)
+           ((xnor sigm sigb)         ; si f(m) y f(b) tienen el mismo signo, f(a) y f(b) lo tienen distinto
             (bisect f a m tol))
-           (t
+           (t                        ; solo puede pasar que f(m) y f(b) tengan distinto signo
             (bisect f m b tol)))))
   
   
