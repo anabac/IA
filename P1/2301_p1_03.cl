@@ -2,7 +2,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; is-ok (u v)
-;;; Comprueba que dos vectores son del mismo tama�o y no contienen numeros negativos
+;;; Comprueba que dos vectores son del mismo tamaño y no contienen numeros negativos
 ;;;
 ;;; INPUT: u: vector, representado como una lista
 ;;; v: vector, representado como una lista
@@ -26,7 +26,7 @@
 ;;; INPUT: u: vector, representado como una lista
 ;;; v: vector, representado como una lista
 ;;;
-;;; OUTPUT: producto escalar de u y v ( u·v )
+;;; OUTPUT: producto escalar de u y v ( uÂ·v )
 ;;;
 (defun dot-product-rec (u v)
 	(if (or (null u) (null v))
@@ -37,14 +37,14 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; defun 2-norm-rec (v)
-;;; Calcula la norma-2 (euclídea) de un vector de forma recursiva
+;;; Calcula la norma-2 (euclÃ­dea) de un vector de forma recursiva
 ;;;
 ;;; INPUT: v: vector, representado como una lista
 ;;;
 ;;; OUTPUT: norma-2 de v ( ||v|| )
 ;;;
 (defun 2-norm-rec (v)
-   (sqrt (dot-product-rec v v))) ; ||v||² = <v,v>
+   (sqrt (dot-product-rec v v))) ; ||v||Â² = <v,v>
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; sc-rec (x y)
@@ -69,21 +69,21 @@
 ;;; INPUT: u: vector, representado como una lista
 ;;; v: vector, representado como una lista
 ;;;
-;;; OUTPUT: producto escalar de u y v ( u·v )
+;;; OUTPUT: producto escalar de u y v ( uÂ·v )
 ;;;
 (defun dot-product-mapcar (u v)
 	(reduce #'+ (mapcar #'* u v)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; defun 2-norm-rec (v)
-;;; Calcula la norma-2 (euclídea) de un vector usando mapcar
+;;; Calcula la norma-2 (euclÃ­dea) de un vector usando mapcar
 ;;;
 ;;; INPUT: v: vector, representado como una lista
 ;;;
 ;;; OUTPUT: norma-2 de v ( ||v|| )
 ;;;
 (defun 2-norm-mapcar (v)
-	(sqrt (dot-product-mapcar v v))) ; ||v||² = <v,v>
+	(sqrt (dot-product-mapcar v v))) ; ||v||Â² = <v,v>
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; sc-mapcar (x y)
@@ -141,12 +141,12 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; sc-classifier (cats texts func)
-;; Clasifica a los textos en categor�as.
+;; Clasifica a los textos en categorías.
 ;;;
 ;;; INPUT: cats: vector de vectores, representado como una lista de listas
 ;;; vs: vector de vectores, representado como una lista de listas
-;;; func: referencia a funci�n para evaluar la similitud coseno
-;;; OUTPUT: Pares identificador de categor�a con resultado de similitud coseno
+;;; func: referencia a función para evaluar la similitud coseno
+;;; OUTPUT: Pares identificador de categoría con resultado de similitud coseno
 ;;;
 (defun sc-classifier (cats texts func)
 	(if (null texts)
@@ -173,5 +173,5 @@
 (defun combine-elt-lst (ele lst)
 	(if(or (null ele) (null lst))
 		NIL
-		(mapcar #'(lambda (list1) 								; recorro toda la lista y creo u8na lista de listas (ele, ele_lista) 
-								(list ele list1)) lst)))        ; list1 el el parametro de mi lambda, lst la lista que nos pasan y la funcion list nos hace listas (ele, ele_lista) 
+		(mapcar #'(lambda (list1) 				; recorro toda la lista y creo u8na lista de listas (ele, ele_lista) 
+					(list ele list1)) lst)))        ; list1 el el parametro de mi lambda, lst la lista que nos pasan y la funcion list nos hace listas (ele, ele_lista) 
