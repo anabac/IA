@@ -177,6 +177,26 @@
 (defun combine-lst-lst (lst1 lst2)
 	(if (or (null lst1) (null lst2))
 		NIL
-		(mapcan (lambda (x) 
-          (mapcar (lambda (y) (list x y))
+		(mapcan (lambda (lista1) 
+          (mapcar (lambda (lista2) (list lista1 lista2))
                   lst2)) lst1)))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;3.3;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; combine-list-of-lists (lstolsts)
+;;; Calcula todas las posibles disposiciones de elementos pertenecientes a cada una de las listas en lstolsts
+;;;
+;;; INPUT: lstolsts: lista de listas 
+;;; OUTPUT: lista con todas las posibles combinaciones de los elementos de las listas de lstolsts, tomando un solo elemento de cada una de esas listas
+;;;
+
+
+(defun combine-list-of-lists (lstolsts)
+	(cond ((or (some #'null lstolsts) (null lstolsts)) nil)												;no hay listas o hay alguna lista vacia
+		  ((null(rest lstolsts)) (mapcar #'(lambda (x) (list x)) (first lstolsts)))						;hay 1 lista
+		  ((null (rest (rest lstolsts))) (combine-lst-lst (first lstolsts) (first (rest lstolsts))))	;hay 2 listas
+		  (t nil)))																						;hay 3 o mas listas  		
+		  
+
