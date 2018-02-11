@@ -138,14 +138,27 @@
   (if (null texts)
       nil 										 ; caso base	
     (cons (reduce #'(lambda (x y)							 ; saca tupla (id, sc) con el maximo sc
-                      (if (> (rest x) (rest y))
-                          x
+                      (if (> (first (rest x)) (first (rest y))) ;como ahora son listas y no cons tengo que acceder al interior de la lista porque (num) no puede evaluarlo el operador >, pero si a su first
+                        x
                         y))
                   (mapcar #'(lambda (cat)					     ; saca una lista con tuplas (id, sc) para cada categoria
-                              (cons (first cat)
+                              (list (first cat)
                                     (funcall func (rest cat) (rest (first texts))))) ; aplica la funcion para sacar sc
                     cats))
           (sc-classifier cats (rest texts) func))))			             ; concateno este par con una lista de los pares siguientes
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;1.4;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Banco de pruebas de sc-classifier
+;;; 
+
+(setf cats '((1 43 23 12) (2 33 54 24)))
+(setf texts '((1 3 22 134) (2 43 26 58)))
+(sc-classifier cats texts #'sc-rec)
+(sc-classifier cats texts #'sc-mapcar)
+
+
 
 
 
