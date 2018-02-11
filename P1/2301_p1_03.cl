@@ -284,7 +284,7 @@
 ;;; OUTPUT: Lista de pares (elt, elemento_lista)
 ;;;
 (defun combine-elt-lst (ele lst)
-	(if (or (null ele) (null lst))
+	(if (null lst)				;antes esto: (or (null ele) (null lst)) pero por lo que dijo david por el grupo no dice que ele no pueda ser nil
 		NIL
 		(mapcar #'(lambda (list1) 				; recorro toda la lista y creo una lista de listas (ele, ele_lista) 
 					(list ele list1)) lst)))        ; list1 el el parametro de mi lambda, lst la lista que nos pasan y la funcion list nos hace listas (ele, ele_lista) 
