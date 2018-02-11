@@ -240,7 +240,7 @@
 ;; given sub-intervals
 ;;
 (defun allroot (f lst tol)
-  (if (null (rest lst))                                   ; de parada (si queda solo un elemento, para)
+  (if (null (rest lst))                                   ; condicion de parada (si queda solo un elemento, para)
       nil
     (let ((root (bisect f (first lst) (second lst) tol)))
       (if (null root)                                     ; si no puedo encontrar raiz en el intervalo
