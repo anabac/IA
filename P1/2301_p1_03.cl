@@ -26,7 +26,7 @@
 ;;; OUTPUT: norma-2 de v ( ||v|| )
 ;;;
 (defun 2-norm-rec (v)
-   (sqrt (dot-product-rec v v))) ; ||v||² = <v,v>
+  (sqrt (dot-product-rec v v))) ; ||v||² = <v,v>
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; sc-rec (x y)
@@ -139,7 +139,7 @@
       nil 										 ; caso base	
     (cons (reduce #'(lambda (x y)							 ; saca tupla (id, sc) con el maximo sc
                       (if (> (first (rest x)) (first (rest y))) ;como ahora son listas y no cons tengo que acceder al interior de la lista porque (num) no puede evaluarlo el operador >, pero si a su first
-                        x
+                          x
                         y))
                   (mapcar #'(lambda (cat)					     ; saca una lista con tuplas (id, sc) para cada categoria
                               (list (first cat)
@@ -279,7 +279,7 @@
 ;;
 (defun allind (f a b N tol)
   (if (= N 0)                                ; N va a ir disminuyendo segun divida el intervalo. Cuando sea 0
-      (list (bisect f a b tol))              ; aplico bisect al intervalo obtenido (lo hago lista para poder concatenarlo luego)
+      (remove nil (list (bisect f a b tol))) ; aplico bisect al intervalo obtenido (lo hago lista para poder concatenarlo luego y le quito posibles nil)
     (let ((m (/ (+ a b) 2)))                 ; punto medio
       (append (allind f a m (- N 1) tol)     ; Si N no es 0, entonces concateno las raices de la primera mitad
               (allind f m b (- N 1) tol))))) ; con las de la segunda mitad
@@ -297,10 +297,8 @@
 ;;; OUTPUT: Lista de pares (elt, elemento_lista)
 ;;;
 (defun combine-elt-lst (ele lst)
-	(if (null lst)				;antes esto: (or (null ele) (null lst)) pero por lo que dijo david por el grupo no dice que ele no pueda ser nil
-		NIL
-		(mapcar #'(lambda (list1) 				; recorro toda la lista y creo una lista de listas (ele, ele_lista) 
-					(list ele list1)) lst)))        ; list1 el el parametro de mi lambda, lst la lista que nos pasan y la funcion list nos hace listas (ele, ele_lista) 
+  (mapcar #'(lambda (list1)                  ; para cada elemento list1 de la lista 
+              (list ele list1)) lst))        ; creo una lista (ele list1)
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;3.2;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -314,55 +312,65 @@
 ;;; OUTPUT: lista producto cartesiano de lst1 y lst2
 ;;;
 (defun combine-lst-lst (lst1 lst2)
-	(if (or (null lst1) (null lst2))
-		NIL
-		(mapcan (lambda (lista1) 								;recorremos la primera lista con un mapcan para concatenar en lugar de poner parentesis
-          (mapcar (lambda (lista2) (list lista1 lista2))		;recorremos la segunda lista para cada elemento de la primera y hacemos parejas de dos elementos hasta formar todos los posibles
-                  lst2)) lst1)))
+  (mapcan #'(lambda (e)                   ; cada elemento de la primera lista
+              (combine-elt-lst e lst2))   ; lo combino con toda la segunda lista
+    lst1))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;3.3;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; flatten (lst)
-;;; Devuelve la lista lst dada sin parentesis anidados (solo los exteriores)
+;;; proper-list (l)
+;;; Comprueba si el argumento de enetrada es una lista bien formada
 ;;;
-;;; INPUT: lst: lista con parentesis anidados a aplanar 
-;;; OUTPUT: lista aplanada
+;;; INPUT: l: argumento a comprobar
+;;; OUTPUT: T si l es una lista bien formada, NIL en caso contrario
 ;;;
-(defun flatten (lst) 
-  (labels ((rflatten (lst1 acc)
-             (dolist (el lst1)
-               (if (listp el)
-                   (setf acc (rflatten el acc))
-                   (push el acc)))
-             acc))
-    (reverse (rflatten lst nil))))
+(defun proper-list(l)
+  (or (null l)
+      (and (consp l)
+           (proper-list (rest l)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; combine-list-of-lists-aux (lista_en_construccion lstolsts)
-;;; Funcion auxiliar que recibe una lista con los elementos de la primera lista de lstolsts listados para trabajar sobre ella
+;;; combine-elt-lst-alt (elt lst)
+;;; Combina el elemento dado con cada elemento de la lista dada
+;;; Si el elemento es una lista, le anyade el otro al final,
+;;; en lugar de formar una nueva lista
 ;;;
-;;; INPUT: lista_en_construccion: lista inicializada con los elementos del (first lstolsts) listados, sobre la que se formara la lista final
-;;; lstolsts: lista de listas, aunque sera lstolsts sin su first, pues ya tendremos este en forma de lista de cada elemento en lista_en_construccion
-;;; OUTPUT: lista con todas las posibles combinaciones de los elementos de las listas de lstolsts, tomando un solo elemento de cada una de esas listas
+;;; INPUT: elt: elemento (atomo) a combinar con los elementos de la lista
+;;; lst: lista de elementos con cada uno de los cuales ha de combinarse el elemento para formar una lista combinada
+;;; OUTPUT: Lista de pares (elt, elemento_lista)
 ;;;
-(defun combine-list-of-lists-aux (lista_en_construccion lstolsts)
-	(if (null lstolsts)																											  ;le pasamos siempre el rest de la anterior (recursion)
-		lista_en_construccion																									  ;caso base
-		(mapcar #'flatten (combine-list-of-lists-aux (combine-lst-lst lista_en_construccion (first lstolsts)) (rest lstolsts))))) ;la lista sale con parentesis anidados tras usar combine-lst-lst asi que eplanamos cada sublista de la lista
+(defun combine-elt-lst-alt (ele lst)
+  (mapcar #'(lambda (list1)
+              (if (proper-list ele)          ; si el elemento es una lista
+                  (append ele (list list1))  ; anyade list1 al final (en lugar de hacer una lista de dos elementos (ele list1))
+                (list ele list1)))
+    lst))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; combine-lst-lst-alt (lst1 lst2)
+;;; Calcula el producto cartesiano de dos listas, utilizando combine-elt-lst-alt
+;;;
+;;; INPUT: lst1: una de las listas de las que se debe calcular el producto cartesiano 
+;;; lst2: la otra lista de las que se debe calcular el producto cartesiano
+;;; OUTPUT: lista producto cartesiano de lst1 y lst2
+;;;
+(defun combine-lst-lst-alt (lst1 lst2)
+  (mapcan #'(lambda (e)
+              (combine-elt-lst-alt e lst2))
+    lst1))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; combine-list-of-lsts (lstolsts)
-;;; Calcula todas las posibles disposiciones de elementos pertenecientes a cada una de las listas en lstolsts, a menos que haya mas de 2 listas, en cuyo caso esa tarea la realiza una funcion auxiliar
+;;; Calcula todas las posibles disposiciones de elementos pertenecientes
+;;; a cada una de las listas en lstolsts
 ;;;
 ;;; INPUT: lstolsts: lista de listas 
-;;; OUTPUT: lista con todas las posibles combinaciones de los elementos de las listas de lstolsts, tomando un solo elemento de cada una de esas listas
+;;; OUTPUT: lista con todas las posibles combinaciones de los elementos de
+;;;  las listas de lstolsts, tomando un solo elemento de cada una de esas listas
 ;;;
 (defun combine-list-of-lsts (lstolsts)
-	(cond ((some #'null lstolsts) nil)																						;hay alguna lista vacia
-		  ((null(rest lstolsts)) (mapcar #'(lambda (x) (list x)) (first lstolsts)))											;hay 1 lista
-		  ((null (rest (rest lstolsts))) (combine-lst-lst (first lstolsts) (first (rest lstolsts))))						;hay 2 listas
-		  (t (combine-list-of-lists-aux (mapcan #'(lambda (lst1) (list lst1)) (first lstolsts)) (rest lstolsts)))))			;hay 3 o mas listas - realiza el trabajo la funcion auxiliar 		
-		  
-
+  (if (null (rest lstolsts))                   ; si tiene una sola lista
+      (mapcar #'list (first lstolsts))         ; debe satisfacer el ejemplo 4
+    (reduce #'combine-lst-lst-alt lstolsts)))
