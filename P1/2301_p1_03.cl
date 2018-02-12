@@ -156,9 +156,23 @@
 (setf cats '((1 43 23 12) (2 33 54 24)))
 (setf texts '((1 3 22 134) (2 43 26 58)))
 (sc-classifier cats texts #'sc-rec)
+;127'652 processor cycles
+;0'000107 seconds
 (sc-classifier cats texts #'sc-mapcar)
+;75'488 processor cycles
+;0'000033 seconds
 
 
+(setf cats2 '((1 37 42 18 29 14) (2 24 38 93 16 2) (3 16 29 4 66 9) (4 86 77 9 6 3) (5 16 18 1 0 99) (6 14 18 23 2 76) (7 99 23 46 18 33) (8 13 14 15 70 90)))
+(setf texts2 '((1 37 42 18 29 14) (2 45 66 3 14 2) (3 14 25 10 55 8) (4 8 45 6 77 21) (5 6 44 32 12 1) (6 66 4 33 52 6) (7 6 45 33 21 12) (8 4 5 66 77 88)))
+;salida: ((1 1.0000001) (4 0.9632508) (3 0.99436706) (3 0.97984594) (2 0.8509972) (7 0.87027204) (1 0.85014236) (8 0.9203154))
+
+(time(sc-classifier cats2 texts2 #'sc-rec))
+;164'798 processor cycles
+;0'000065 seconds
+(time(sc-classifier cats2 texts2 #'sc-mapcar))
+;299'454 processor cycles
+;0'000117 seconds
 
 
 
