@@ -274,7 +274,7 @@
 ;; RECIBE   : FBF en formato infijo 
 ;; EVALUA A : FBF en formato prefijo 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun infix-to-prefix (wff)
+#| (defun infix-to-prefix (wff)
   (when (wff-infix-p wff)
     (if (literal-p wff)
         wff
@@ -298,6 +298,30 @@
                           (list (infix-to-prefix (first rest_1)))   ;; me quedo con el, convertido a prefijo (list y first para que cuadre el caso base de la recursion)
                         (rest (infix-to-prefix rest_1))))))         ;; en los demas, el primer elemento es el conector
          (t NIL)))))) ;; no deberia llegar a este paso nunca
+ |#
+(defun infix-to-prefix (wff)
+  (when (wff-infix-p wff)
+    (if (literal-p wff)
+        wff
+      (let ((op_1      (first wff))
+            (connector (second wff))
+            (op_2      (third wff))
+            (rest_1    (cddr wff)))
+        (cond
+         ((unary-connector-p op_1)
+          (list op_1 (infix-to-prefix connector)))
+         ((n-ary-connector-p op_1)           ;; conjuncion o disyuncion vacias.
+          wff)
+         ((binary-connector-p connector)
+          (list connector
+                (infix-to-prefix op_1)
+                (infix-to-prefix op_2)))
+         ((n-ary-connector-p connector)
+          (cons connector                                   ;; concateno el conector
+                (mapcan #'(lambda(x)
+                                  (unless (connector-p x)   ;; con los operandos en infijo
+                                    (list (infix-to-prefix x))))
+                  wff))))))))
 
 ;;
 ;; EJEMPLOS
