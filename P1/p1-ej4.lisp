@@ -137,7 +137,7 @@
                           (let ((rest_2 (rest rest_1)))
                             (or (null rest_2)           ;; conjuncion o disyuncion con un elemento
                                 (wff-prefix-p (cons connector rest_2)))))))   
-                (T NIL)))))))                   ;; No es FBF en formato prefijo 
+                (t NIL)))))))                   ;; No es FBF en formato prefijo 
 ;;
 ;; EJEMPLOS:
 (wff-prefix-p '(v))
@@ -175,9 +175,9 @@
                     (conn_2    (first rest_2)))
                (cond
                 ((unary-connector-p op_1)       ;; Si el primer elemento es un conector unario
-                 (and (null (rest_1))           ;; deberia tener la estructura (<conector> FBF)
-                      (wff-infix-p (conn_1))))
-                ((n-ary-connector-p op_1)        ;; Si el primer elemento es un conector enario
+                 (and (null rest_1)             ;; deberia tener la estructura (<conector> FBF)
+                      (wff-infix-p conn_1)))
+                ((n-ary-connector-p op_1)       ;; Si el primer elemento es un conector enario
                  (null (rest x)))               ;; conjuncion o disyuncion vacias
                 ((binary-connector-p conn_1)    ;; Si el segundo elemento es un conector binario
                  (and (null (rest rest_1))      ;; deberia tener la estructura (FBF1 <conector> FBF2)
@@ -189,7 +189,7 @@
                                (wff-infix-p op_2))      ;; el segundo debe ser una FBF
                           (and (eql conn_2 conn_1)      ;; si hay mas operandos, el segundo conector debe ser igual al primero
                                (wff-infix-p rest_1))))) ;; y quitando el primer operando y conector, debe ser una FBF
-                (T NIL)))))))                   ;; No es FBF en formato infijo 
+                (t NIL)))))))                   ;; No es FBF en formato infijo 
 
 ;;
 ;; EJEMPLOS:
@@ -230,7 +230,7 @@
   (when (wff-prefix-p wff)
     (if (literal-p wff)
         wff
-      (let ((connector      (first wff))
+      (let ((connector    (first wff))
             (elements-wff (rest wff)))
         (cond
          ((unary-connector-p connector) 
@@ -275,10 +275,29 @@
 ;; EVALUA A : FBF en formato prefijo 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun infix-to-prefix (wff)
-  ;;
-  ;; 4.1.5 Completa el codigo
-  ;;
-  )
+  (when (wff-infix-p wff)
+    (if (literal-p wff)
+        wff
+      (let ((op_1      (first wff))
+            (connector (second wff))
+            (op_2      (third wff))
+            (rest_1    (cddr wff)))
+        (cond
+         ((unary-connector-p op_1)
+          (list op_1 (infix-to-prefix connector)))
+         ((n-ary-connector-p op_1)           ;; conjuncion o disyuncion vacias.
+          wff)
+         ((binary-connector-p connector)
+          (list connector
+                (infix-to-prefix op_1)
+                (infix-to-prefix op_2)))
+         ((n-ary-connector-p connector)
+          (cons connector                     ;; Quitando el primer operando y conector
+                (cons (infix-to-prefix op_1)  ;; tambien es FBF infijo
+                      (if (null (rest rest_1))                      ;; cuando llego al ultimo operando
+                          (list (infix-to-prefix (first rest_1)))   ;; me quedo con el, convertido a prefijo (list y first para que cuadre el caso base de la recursion)
+                        (rest (infix-to-prefix rest_1))))))         ;; en los demas, el primer elemento es el conector
+         (t NIL)))))) ;; no deberia llegar a este paso nunca
 
 ;;
 ;; EJEMPLOS
