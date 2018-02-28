@@ -462,17 +462,17 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun eliminate-biconditional (wff)
-  (if (or (null wff) (literal-p wff))
+  (if (or (null wff) (literal-p wff))             ;; Un literal no tiene conector bicondicional que eliminar
       wff
     (let ((connector (first wff)))
-      (if (eq connector +bicond+)
-          (let ((wff1 (eliminate-biconditional (second wff)))
-                (wff2 (eliminate-biconditional (third  wff))))
-            (list +and+ 
-                  (list +cond+ wff1 wff2)
-                  (list +cond+ wff2 wff1)))
-        (cons connector 
-              (mapcar #'eliminate-biconditional (rest wff)))))))
+      (if (eq connector +bicond+)                 ;; si el conector es bicondicional (<=> fbf1 fbf2)
+          (let ((wff1 (eliminate-biconditional (second wff)))  ;; elimina bicondicionales de fbf1
+                (wff2 (eliminate-biconditional (third  wff)))) ;; elimina bicondicionales de fbf2
+            (list +and+                           ;; devuelve (^                              )
+                  (list +cond+ wff1 wff2)         ;;             (=> fbf1 fbf2)
+                  (list +cond+ wff2 wff1)))       ;;                            (=> fbf2 fbf1)
+        (cons connector                                           ;; si es otro conector
+              (mapcar #'eliminate-biconditional (rest wff)))))))  ;; elimina bicondicionales de todos los operandos
 
 ;;
 ;; EJEMPLOS:
