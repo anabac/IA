@@ -318,7 +318,7 @@
                 (infix-to-prefix op_2)))
          ((n-ary-connector-p connector)
           (cons connector                                   ;; concateno el conector
-                (mapcan #'(lambda(x)
+                (mapcan #'(lambda (x)
                                   (unless (connector-p x)   ;; con los operandos en infijo
                                     (list (infix-to-prefix x))))
                   wff))))))))
@@ -524,10 +524,25 @@
 ;;            negativos.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun reduce-scope-of-negation (wff)
-  ;;
-  ;; 4.2.3 Completa el codigo
-  ;;
-  )
+  (if (or (null wff) (literal-p wff))    ;; Un literal no puede reducir su negacion
+      wff
+    (let ((connector (first wff)))
+      (if (eq connector +not+)                          ;; si el conector es negacion (¬ fbf)
+          (let* ((wff_2       (cadr wff))
+                 (connector_2 (first wff_2)))
+            (cond
+             ((eql connector_2 +not+)                   ;; y el conector de la fbf negada tambien es negacion (¬ (¬ fbf2))
+              (reduce-scope-of-negation (cadr wff_2)))  ;; elimina las dos negaciones, y devuelve la fbf2 con negaciones reducidas
+             ((or (eql connector_2 +and+)           ;; si el conector de la fbf negada es and (¬ (^ fbf2 ... fbfn))
+                  (eql connector_2 +or+))           ;; o es or (¬ (v fbf2 ... fbfn))
+              (reduce-scope-of-negation             ;; reduzco las negaciones del resultado de
+               (cons (exchange-and-or connector_2)  ;; cambiar el conector (and por or y viceversa)
+                     (mapcar #'(lambda (x)
+                                 (list +not+ x))    ;; y negar
+                       (rest wff_2)))))             ;; cada fbf a las que estaba aplicado
+             (t NIL))) ;; No deberia darse nunca
+        (cons connector                                           ;; si el primer conector no es una negacion
+              (mapcar #'reduce-scope-of-negation (rest wff))))))) ;; reduzco el ambito de las negaciones de todas las fbf
 
 (defun exchange-and-or (connector)
   (cond
