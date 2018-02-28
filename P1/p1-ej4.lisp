@@ -677,10 +677,15 @@
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun eliminate-connectors (cnf)
-  ;;
-  ;; 4.2.5 Completa el codigo
-  ;;
-  )
+  (when (cnf-p cnf)
+    (eliminate-connectors-rec cnf)))
+
+(defun eliminate-connectors-rec (fbf)
+  (mapcar #'(lambda (x)
+              (if (literal-p x)
+                  x
+                (eliminate-connectors-rec x)))
+    (rest fbf)))
 
 (eliminate-connectors 'nil)
 (eliminate-connectors (cnf '(^ (v p  (¬ q))  (v k  r  (^ m  n)))))
