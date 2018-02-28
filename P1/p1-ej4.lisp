@@ -406,7 +406,7 @@
 (clause-p '(¬ (v p q)))           ; NIL
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; EJERCICIO 1.7
+;; EJERCICIO 4.1.7
 ;; Predicado para determinar si una FBF esta en FNC  
 ;;
 ;; RECIBE   : FFB en formato prefijo 
@@ -414,10 +414,16 @@
 ;;            NIL en caso contrario. 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun cnf-p (wff)
-  ;;
-  ;; 4.1.7 Completa el codigo
-  ;;
-  )
+  (when (and (wff-prefix-p wff)
+             (not (literal-p wff))
+             (eql (first wff) +and+))
+    (clauses-p (rest wff))))
+
+;; Determina si todos los elementos de una lista son clausulas
+(defun clauses-p (lst)
+  (or (null lst)      ;; Caso base (recoge conjuncion vacia)
+      (and (clause-p (first lst))     ;; Recursiva y no con mapcan para que pare al encontrar
+           (clauses-p (rest lst)))))  ;; un elemento no clausula, y no recorra toda la lista
 
 ;;
 ;; EJEMPLOS:
