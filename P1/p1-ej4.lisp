@@ -493,10 +493,17 @@
 ;;            sin el connector =>
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun eliminate-conditional (wff)  
-  ;;
-  ;; 4.2.2 Completa el codigo
-  ;;
-  )       
+  (if (or (null wff) (literal-p wff))             ;; Un literal no tiene conector condicional que eliminar
+      wff
+    (let ((connector (first wff)))
+      (if (eq connector +cond+)     ;; si el conector es condicional (=> fbf1 fbf2)
+          (let ((wff1 (eliminate-conditional (second wff)))  ;; elimina condicionales de fbf1
+                (wff2 (eliminate-conditional (third  wff)))) ;; elimina condicionales de fbf2
+            (list +or+              ;; devuelve (v              )
+                  (list +not+ wff1) ;;             (¬ fbf1)
+                  wff2))            ;;                      fbf2
+        (cons connector                                         ;; si es otro conector
+              (mapcar #'eliminate-conditional (rest wff)))))))  ;; elimina condicionales de todos los operandos       
 
 ;;
 ;; EJEMPLOS:
