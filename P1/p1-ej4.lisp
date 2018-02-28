@@ -377,10 +377,16 @@
 ;; EVALUA A : T si FBF es una clausula, NIL en caso contrario. 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun clause-p (wff)
-  ;;
-  ;; 4.1.6 Completa el codigo
-  ;;
-  )
+  (when (and (wff-prefix-p wff)
+             (not (literal-p wff))
+             (eql (first wff) +or+))
+    (literals-p (rest wff))))
+
+;; Determina si todos los elementos de una lista son literales
+(defun literals-p (lst)
+  (or (null lst)      ;; Caso base (recoge clausula vacia)
+      (and (literal-p (first lst))     ;; Recursiva y no con mapcan para que pare al encontrar
+           (literals-p (rest lst)))))  ;; un elemento no literal, y no recorra toda la lista
 
 ;;
 ;; EJEMPLOS:
