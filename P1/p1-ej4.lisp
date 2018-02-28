@@ -572,54 +572,55 @@
 ;;            con conectores ^, v
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun combine-elt-lst (elt lst)
-  (if (null lst)
-      (list (list elt))
-    (mapcar #'(lambda (x) (cons elt x)) lst)))
+  (if (null lst)          ;; si la lista es vacia
+      (list (list elt))   ;; devuelve ((elt)), que es como si hubiera hecho el caso general con (NIL) como lista
+    (mapcar #'(lambda (x) (cons elt x)) lst))) ;; a cada elemento de la lista (que va a ser una fbf) le añade elt delante (... (elt . list[i]) ...)
 
-(defun exchange-NF (nf)
-  (if (or (null nf) (literal-p nf)) 
+(defun exchange-NF (nf)               ;; en esencia aplica la propiedad distributiva: (v a (^ b c) d) pasa a ser (^ (v a b d) (v a c d))
+  (if (or (null nf) (literal-p nf))   ;; añade los conectores apropiados a lo que devuelve exchange-NF-aux
       nf
     (let ((connector (first nf)))
-      (cons (exchange-and-or connector)
+      (cons (exchange-and-or connector)    ;; cambia el conector (and por or y viceversa)
             (mapcar #'(lambda (x)
-                          (cons connector x))
-                (exchange-NF-aux (rest nf)))))))
+                          (cons connector x))     ;; le añade el conector original
+                (exchange-NF-aux (rest nf)))))))  ;; a cada una de las combinaciones de los elementos de nf (exchange-nf-aux quita los conectores al combinar)
 
-(defun exchange-NF-aux (nf)
-  (if (null nf) 
+(defun exchange-NF-aux (nf) ;; aplica la propiedad distributiva, pero sin tener en cuenta los conectores, luego los añade exchange-NF
+  (if (null nf)             ;; (a (^ b c) d) pasa a ser ((a b d) (a c d))
       NIL
     (let ((lst (first nf)))
-      (mapcan #'(lambda (x) 
-                  (combine-elt-lst 
+      (mapcan #'(lambda (x)                         ;; cada elemento de nf
+                  (combine-elt-lst                  ;; lo combina
                    x 
-                   (exchange-NF-aux (rest nf)))) 
-        (if (literal-p lst) (list lst) (rest lst))))))
+                   (exchange-NF-aux (rest nf))))    ;; con todas las combinaciones de los siguientes
+        (if (literal-p lst) (list lst) (rest lst))))))  ;; quitando los conectores de haberlos
 
-(defun simplify (connector lst-wffs )
-  (if (literal-p lst-wffs)
+(defun simplify (connector lst-wffs)  ;; simplifica conectores que son iguales al que se le pasa:
+  (if (literal-p lst-wffs)            ;; Con conector v, ((v a b) (^ c d) (v e)) pasa a ser (a b (^ c d) e)
       lst-wffs                    
-    (mapcan #'(lambda (x) 
+    (mapcan #'(lambda (x)                     ;; para cada fbf de la lista
                 (cond 
-                 ((literal-p x) (list x))
-                 ((equal connector (first x))
+                 ((literal-p x) (list x))     ;; si es un literal, lo devuelve (en una lista para poder concatenar)
+                 ((equal connector (first x)) ;; si el conector de la fbf es el que busca
                   (mapcan 
-                      #'(lambda (y) (simplify connector (list y))) 
+                      #'(lambda (y) (simplify connector (list y))) ;; simplifica el mismo conector dentro de la fbf
                     (rest x))) 
                  (t (list x))))               
       lst-wffs)))
 
 (defun cnf (wff)
   (cond
-   ((cnf-p wff) wff)
-   ((literal-p wff)
-    (list +and+ (list +or+ wff)))
+   ((cnf-p wff) wff)      ;; si ya esta en FNC, ya esta
+   ((literal-p wff)               ;; si es un literal
+    (list +and+ (list +or+ wff))) ;; añade and y or para que este en FNC (^ (v a))
    ((let ((connector (first wff))) 
       (cond
-       ((equal +and+ connector) 
-        (cons +and+ (simplify +and+ (mapcar #'cnf (rest wff)))))
-       ((equal +or+ connector) 
-        (cnf (exchange-NF (cons +or+ (simplify +or+ (rest wff)))))))))))
-
+       ((equal +and+ connector)                                   ;; si es una conjuncion
+        (cons +and+ (simplify +and+ (mapcar #'cnf (rest wff)))))  ;; simplifica los and de las fbfs en FNC (^ (^ a b) c) = (^ a b c)
+       ((equal +or+ connector)                                           ;; si es una disyuncion
+        (cnf (exchange-NF (cons +or+ (simplify +or+ (rest wff))))))))))) ;; simplifica los or, con lo cual queda una disyuncion de literales y conjunciones,
+                                                                         ;; les aplica la propiedad distributiva, dejando una conjuncion de disyunciones
+                                                                         ;; y finalmente vuelve a llamarse a si misma para simplificar cada una de las fbfs
 
 (cnf 'a)
 
