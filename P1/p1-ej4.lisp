@@ -718,10 +718,13 @@
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun wff-infix-to-cnf (wff)
-  ;;
-  ;; 4.2.6 Completa el codigo
-  ;;
-  )
+  (when (wff-infix-p wff)
+    (eliminate-connectors             ;; conectores implicitos
+     (cnf                             ;; PASO 4
+      (reduce-scope-of-negation       ;; PASO 3
+       (eliminate-conditional         ;; PASO 2
+        (eliminate-biconditional      ;; PASO 1
+         (infix-to-prefix wff)))))))) ;; pasar a infijo
 
 ;;
 ;; EJEMPLOS:
