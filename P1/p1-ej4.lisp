@@ -744,10 +744,15 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun eliminate-repeated-literals (k)
-  ;;
-  ;; 4.3.1 Completa el codigo
-  ;;
-  )
+  (eliminate-repeated-literals-rec NIL k))
+
+(defun eliminate-repeated-literals-rec (no_rep k)
+  (if (null k)
+      no_rep
+    (let ((1st (first k)))
+      (if (member 1st no_rep :test #'equal)
+          (eliminate-repeated-literals-rec no_rep (rest k))
+        (eliminate-repeated-literals-rec (cons 1st no_rep) (rest k))))))
 
 ;;
 ;; EJEMPLO:
