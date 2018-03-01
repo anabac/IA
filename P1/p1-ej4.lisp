@@ -799,10 +799,8 @@
 ;;            NIL en caso contrario
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun subsume (K1 K2)
-  ;;
-  ;; 4.3.3 Completa el codigo
-  ;;
-  )
+  (when (subsetp K1 K2 :test #'equal) ;; K1 subsume a K2 <=> K1 conenido en K2
+    K1))
   
 ;;
 ;;  EJEMPLOS:
