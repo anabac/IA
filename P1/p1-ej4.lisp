@@ -800,7 +800,9 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun subsume (K1 K2)
   (when (subsetp K1 K2 :test #'equal) ;; K1 subsume a K2 <=> K1 conenido en K2
-    K1))
+    (if (null K1)
+        (list K1)
+      K1)))
   
 ;;
 ;;  EJEMPLOS:
@@ -826,14 +828,26 @@
 ;; EJERCICIO 4.3.4
 ;; eliminacion de clausulas subsumidas en una FNC 
 ;; 
-;; RECIBE   : K (clausula), cnf (FBF en FNC)
+;; RECIBE   : cnf (FBF en FNC)
 ;; EVALUA A : FBF en FNC equivalente a cnf sin clausulas subsumidas 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun eliminate-subsumed-clauses (cnf) 
-  ;;
-  ;; 4.3.4 Completa el codigo
-  ;;
-)
+(defun eliminate-subsumed-clauses (cnf)
+  (unless (null cnf)
+    (my-adjoin (eliminate-repeated-literals (first cnf))    ;; añade la primera clausula (sin literales repetidos)
+               (eliminate-subsumed-clauses (rest cnf)))))   ;; al resto de la NFC ya sin clausulas subsumidas
+
+(defun my-adjoin (k cnf)
+  (let ((1st (first cnf))
+        (rst (rest cnf)))
+    (cond ((null cnf)         ;; Si llega al final de la lista es porque ningun elemento subsume a k
+           (list k))          ;; asi que devuelve k
+          ((subsume 1st k)    ;; Si un elemento subsume a k
+           cnf)               ;; no hace falta añadirlo, se devuelve la cnf tal cual
+          ((subsume k 1st)    ;; Si k subsume a un elemento, ese elemento no importa
+           (my-adjoin k rst)) ;; asi que se añade k al resto de la cnf
+          (t                            ;; Si k no subsume ni es subsumido por el primer elemento
+           (cons 1st                    ;; no me salto el elemento, y lo concateno
+                 (my-adjoin k rst)))))) ;; con el resultado de añadir k al resto de la cnf
 
 ;;
 ;;  EJEMPLOS:
