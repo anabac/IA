@@ -756,8 +756,8 @@
 
 (defun eliminate-repeated-literals (k)
   (unless (null k)                                  ;; tratando la clausula como un conjunto
-    (adjoin (first k)                               ;; añade el primer elemento
-            (eliminate-repeated-literals (rest k))  ;; al resto de la lista sin elementos repetidos
+    (adjoin (first k)                               ;; añade cada literal
+            (eliminate-repeated-literals (rest k))  ;; al resto de la lista sin literales repetidos
             :test #'equal)))
 
 ;;
@@ -774,10 +774,15 @@
 ;; EVALUA A : FNC equivalente sin clausulas repetidas 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun eliminate-repeated-clauses (cnf) 
-  ;;
-  ;; 4.3.2 Completa el codigo
-  ;;
-  )
+  (unless (null cnf)                                  ;; tratando la FNC como un conjunto
+    (adjoin (eliminate-repeated-literals (first cnf)) ;; añade la primera clausula (eliminando sus literales repetidos)
+            (eliminate-repeated-clauses (rest cnf))   ;; al resto de la lista sin clausulas repetidas
+            :test-not #'(lambda (set1 set2)           ;; comparandolas con igualdad de conjuntos
+                          (set-exclusive-or set1 set2 :test #'equal)))))
+;; (si xor de dos es nil es porque los dos son vacios o los dos tienen las mismas clausulas)
+
+;; En clualquier caso, no tiene mucho sentido usar esta funcion si vamos a usar eliminate-subsumed-clauses,
+;; ya que las clausulas repetidas estarian subsumidas unas en otras
 
 ;;
 ;; EJEMPLO:
