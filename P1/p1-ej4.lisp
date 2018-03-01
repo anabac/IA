@@ -871,10 +871,21 @@
 ;;            NIL en caso contrario
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun tautology-p (K) 
-  ;;
-  ;; 4.3.5 Completa el codigo
-  ;;
-  )
+  (unless (null K)                      ;; NIL es falso
+    (let ((1st (first K))
+          (rst (rest K)))
+      (or (is-negation-of-any 1st rst)  ;; o bien el primer elemento es negacion de alguno de los demas
+          (tautology-p rst)))))         ;; o bien se le ha hecho un or con una tautologia
+
+(defun negate-literal (l)
+  (if (positive-literal-p l)
+      (list +not+ l)
+    (cadr l)))
+
+(defun is-negation-of-any (l K)
+  (unless (null K)
+    (or (equal l (negate-literal (first K)))
+        (is-negation-of-any l (rest K)))))
 
 ;;
 ;;  EJEMPLOS:
