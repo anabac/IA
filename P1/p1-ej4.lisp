@@ -743,7 +743,7 @@
 ;; EVALUA A : clausula equivalente sin literales repetidos 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun eliminate-repeated-literals (k)
+#| (defun eliminate-repeated-literals (k)
   (eliminate-repeated-literals-rec NIL k))
 
 (defun eliminate-repeated-literals-rec (no_rep k)
@@ -752,7 +752,13 @@
     (let ((1st (first k)))
       (if (member 1st no_rep :test #'equal)
           (eliminate-repeated-literals-rec no_rep (rest k))
-        (eliminate-repeated-literals-rec (cons 1st no_rep) (rest k))))))
+        (eliminate-repeated-literals-rec (cons 1st no_rep) (rest k)))))) |#
+
+(defun eliminate-repeated-literals (k)
+  (unless (null k)                                  ;; tratando la clausula como un conjunto
+    (adjoin (first k)                               ;; añade el primer elemento
+            (eliminate-repeated-literals (rest k))  ;; al resto de la lista sin elementos repetidos
+            :test #'equal)))
 
 ;;
 ;; EJEMPLO:
