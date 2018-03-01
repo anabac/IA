@@ -781,8 +781,7 @@
                           (set-exclusive-or set1 set2 :test #'equal)))))
 ;; (si xor de dos es nil es porque los dos son vacios o los dos tienen las mismas clausulas)
 
-;; En clualquier caso, no tiene mucho sentido usar esta funcion si vamos a usar eliminate-subsumed-clauses,
-;; ya que las clausulas repetidas estarian subsumidas unas en otras
+;; Elimino literales repetidos para cumplir el ejemplo
 
 ;;
 ;; EJEMPLO:
@@ -927,10 +926,9 @@
 ;;            y sin clausulas subsumidas
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun simplify-cnf (cnf) 
-  ;;
-  ;; 4.3.7 Completa el codigo
-  ;;
-  )
+  (eliminate-subsumed-clauses
+   (eliminate-tautologies
+    (eliminate-repeated-clauses cnf)))) ;; eliminate-repeated-clauses ya elimina los literales repetidos
 
 ;;
 ;;  EJEMPLOS:
