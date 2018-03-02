@@ -941,16 +941,21 @@
 ;; EJERCICIO 4.4.1
 ;; Construye el conjunto de clausulas lambda-neutras para una FNC 
 ;;
-;; RECIBE   : cnf    - FBF en FBF simplificada
+;; RECIBE   : cnf    - FBF en FNC simplificada
 ;;            lambda - literal positivo
 ;; EVALUA A : cnf_lambda^(0) subconjunto de clausulas de cnf  
 ;;            que no contienen el literal lambda ni ¬lambda   
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun extract-neutral-clauses (lambda cnf) 
-  ;;
-  ;; 4.4.1 Completa el codigo
-  ;;
-  )
+  (remove-if #'(lambda (k) 
+                (contains-it-or-negation lambda k))
+             cnf))
+
+(defun contains-it-or-negation (l k)
+  (unless (null k)
+    (or (equal (first k) l)
+        (equal (first k) (negate-literal l))
+        (contains-it-or-negation l (rest k)))))
 
 ;;
 ;;  EJEMPLOS:
