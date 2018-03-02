@@ -1058,10 +1058,14 @@
 ;;                          eliminados
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun resolve-on (lambda K1 K2) 
-  ;;
-  ;; 4.4.4 Completa el codigo
-  ;;
-  )
+  (let ((¬lambda (negate-literal lambda)))
+    (when (or (and (member lambda K1 :test #'equal)
+                   (member ¬lambda K2 :test #'equal))
+              (and (member lambda K2 :test #'equal)
+                   (member ¬lambda K1 :test #'equal)))
+      (list 
+       (set-difference (union K1 K2 :test #'equal)
+                       (list lambda ¬lambda) :test #'equal)))))
 
 ;;
 ;;  EJEMPLOS:
