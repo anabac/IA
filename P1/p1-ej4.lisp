@@ -948,7 +948,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun extract-neutral-clauses (lambda cnf) 
   (remove-if #'(lambda (k) 
-                (contains-it-or-negation lambda k))
+                 (contains-it-or-negation lambda k))
              cnf))
 
 (defun contains-it-or-negation (l k)
@@ -989,10 +989,9 @@
 ;;            que contienen el literal lambda  
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun extract-positive-clauses (lambda cnf) 
-  ;;
-  ;; 4.4.2 Completa el codigo
-  ;;
-  )
+  (remove-if-not #'(lambda (k)
+                     (member lambda k :test #'equal))
+                 cnf))
 
 ;;
 ;;  EJEMPLOS:
@@ -1024,10 +1023,9 @@
 ;;            que contienen el literal ¬lambda  
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun extract-negative-clauses (lambda cnf) 
-  ;;
-  ;; 4.4.3 Completa el codigo
-  ;;
-  )
+  (remove-if-not #'(lambda (k)
+                     (member (negate-literal lambda) k :test #'equal))
+                 cnf))
 
 ;;
 ;;  EJEMPLOS:
