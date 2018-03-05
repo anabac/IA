@@ -1102,10 +1102,30 @@
 ;; EVALUA A : RES_lambda(cnf) con las clauses repetidas eliminadas
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun build-RES (lambda cnf)
-  ;;
-  ;; 4.4.5 Completa el codigo
-  ;;
-)
+  (unless (null cnf)
+    (let ((pos-k (extract-positive-clauses lambda cnf))
+          (neg-k (extract-negative-clauses lambda cnf))
+          (neut-k (extract-neutral-clauses lambda cnf)))
+      (eliminate-repeated-clauses
+       (if (or (null pos-k)
+               (null neg-k))
+           cnf
+         (union neut-k
+                (mapcan #'(lambda (x)
+                            (resolve-on lambda (first x) (second x)))
+                  (combine-lst-lst
+                   pos-k
+                   neg-k))))))))
+  
+  ;; Cogidas de un ej anterior
+  (defun combine-elt-lst (ele lst)
+    (mapcar #'(lambda (list1) 
+                (list ele list1)) lst))
+
+(defun combine-lst-lst (lst1 lst2)
+  (mapcan #'(lambda (e)
+              (combine-elt-lst e lst2))
+    lst1))
 
 ;;
 ;;  EJEMPLOS:
@@ -1125,7 +1145,7 @@
 ;; ((P) ((¬ P) P) ((¬ P)) (B A P) (B A (¬ P)))
 
 (build-RES 'p '((p q) (c q) (a b q) (p (¬ q)) (p (¬ q))))
-;; ((A B Q) (C Q))
+;; ((A B Q) (C Q)) ;; creo que esta mal, deberia dar ((P Q) (C Q) (A B Q) (P (¬ Q)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; EJERCICIO 4.5
