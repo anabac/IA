@@ -1156,15 +1156,30 @@
 ;; EVALUA A :     T  si cnf es SAT
 ;;                NIL  si cnf es UNSAT
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun  RES-SAT-p (cnf) 
-  (if (not (member NIL (mapcar #'(lambda (clause) (member NIL clause);Ve que hayan sido resolubles todos los atomos de todas las clausulas (devuelve NIL en tal caso)
-                                  (mapcar #'(lambda(elt) (if (null (build-RES elt))
-                                                            NIL
-                                                            T));voy a meter un T o un NIL en cada elemento de si era resoluble o no
-                                  clause))
-            cnf)))
-  NIL
-  T))
+(defun RES-SAT-p (cnf)
+  (RES-SAT-p-aux cnf (extract-positive-literals cnf)))
+
+(defun  RES-SAT-p-aux (cnf list-o-lit)
+  (let ((res (build-res (first list-o-lit) cnf)))
+    (if (and (not (null res)) 
+             (null (first res)))
+        nil
+      (if (and (null res) 
+               (null (rest list-o-lit)))
+          t
+        (RES-SAT-p-aux (simplify-cnf (append cnf res)) 
+                       (rest list-o-lit))))))
+
+(defun extract-positive-literals (cnf)
+  (unless (null cnf)
+    (union (positivize-literals (first cnf))
+           (extract-positive-literals (rest cnf)))))
+
+(defun positivize-literals (k)
+  (unless (null k)
+    (if (negative-literal-p (first k))
+        (append (list (second (first k))) (positivize-literals (rest k)))
+      (append (list (first k)) (positivize-literals (rest k))))))
 
 ;;
 ;;  EJEMPLOS:
