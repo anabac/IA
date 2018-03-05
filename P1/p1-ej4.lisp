@@ -1137,10 +1137,14 @@
 ;;                NIL  si cnf es UNSAT
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun  RES-SAT-p (cnf) 
-  ;;
-  ;; 4.5 Completa el codigo
-  ;;
-  )
+  (if (not (member NIL (mapcar #'(lambda (clause) (member NIL clause);Ve que hayan sido resolubles todos los atomos de todas las clausulas (devuelve NIL en tal caso)
+                                  (mapcar #'(lambda(elt) (if (null (build-RES elt))
+                                                            NIL
+                                                            T));voy a meter un T o un NIL en cada elemento de si era resoluble o no
+                                  clause))
+            cnf)))
+  NIL
+  T))
 
 ;;
 ;;  EJEMPLOS:
