@@ -9,7 +9,7 @@
 ;;; INPUT: u: vector, representado como una lista
 ;;; v: vector, representado como una lista
 ;;;
-;;; OUTPUT: producto escalar de u y v ( u·v )
+;;; OUTPUT: producto escalar de u y v ( uÂ·v )
 ;;;
 (defun dot-product-rec (u v)
   (if (or (null u) (null v))
@@ -19,20 +19,20 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; defun 2-norm-rec (v)
-;;; Calcula la norma-2 (eucli­dea) de un vector de forma recursiva
+;;; Calcula la norma-2 (eucliÂ­dea) de un vector de forma recursiva
 ;;;
 ;;; INPUT: v: vector, representado como una lista
 ;;;
 ;;; OUTPUT: norma-2 de v ( ||v|| )
 ;;;
 (defun 2-norm-rec (v)
-  (sqrt (dot-product-rec v v))) ; ||v||² = <v,v>
+  (sqrt (dot-product-rec v v))) ; ||v||Â² = <v,v>
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; sc-rec (x y)
 ;;; Calcula la similitud coseno de un vector de forma recursiva
 ;;; Se asume que los dos vectores de entrada tienen la misma longitud.
-;;; La semejanza coseno entre dos vectores que son listas vacías o que son
+;;; La semejanza coseno entre dos vectores que son listas vacÃ­as o que son
 ;;; (0 0...0) es NIL.
 ;;; INPUT: x: vector, representado como una lista
 ;;; y: vector, representado como una lista
@@ -54,27 +54,27 @@
 ;;; INPUT: u: vector, representado como una lista
 ;;; v: vector, representado como una lista
 ;;;
-;;; OUTPUT: producto escalar de u y v ( u·v )
+;;; OUTPUT: producto escalar de u y v ( uÂ·v )
 ;;;
 (defun dot-product-mapcar (u v)
   (reduce #'+ (mapcar #'* u v)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; defun 2-norm-mapcar (v)
-;;; Calcula la norma-2 (eucli­dea) de un vector usando mapcar
+;;; Calcula la norma-2 (eucliÂ­dea) de un vector usando mapcar
 ;;;
 ;;; INPUT: v: vector, representado como una lista
 ;;;
 ;;; OUTPUT: norma-2 de v ( ||v|| )
 ;;;
 (defun 2-norm-mapcar (v)
-  (sqrt (dot-product-mapcar v v))) ; ||v||² = <v,v>
+  (sqrt (dot-product-mapcar v v))) ; ||v||Â² = <v,v>
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; sc-mapcar (x y)
 ;;; Calcula la similitud coseno de un vector usando mapcar
 ;;; Se asume que los dos vectores de entrada tienen la misma longitud.
-;;; La semejanza coseno entre dos vectores que son listas vacías o que son
+;;; La semejanza coseno entre dos vectores que son listas vacÃ­as o que son
 ;;; (0 0...0) es NIL.
 ;;; INPUT: x: vector, representado como una lista
 ;;; y: vector, representado como una lista
@@ -94,16 +94,16 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; sc-conf (cat vs conf)
 ;;; Devuelve aquellos vectores similares a una categoria
-;;; INPUT: cat: vector que representa a una categoría, representado como una lista
+;;; INPUT: cat: vector que representa a una categorÃ­a, representado como una lista
 ;;; vs: vector de vectores
 ;;; conf: Nivel de confianza
-;;; OUTPUT: Vectores cuya similitud con respecto a la categoría es superior al
+;;; OUTPUT: Vectores cuya similitud con respecto a la categorÃ­a es superior al
 ;;; nivel de confianza, ordenados
 (defun sc-conf (cat vs conf)
   (mapcar #'rest                                                  ; quita el primer elemento (sc) de cada vector, dejando los originales
     (sort
      (remove nil                                                  ; elimina posibles nil
-             (mapcar #'(lambda (z) (sc-conf-ind cat z conf)) vs)) ; añade al principio de cada vector su similitud con cat
+             (mapcar #'(lambda (z) (sc-conf-ind cat z conf)) vs)) ; aÃ±ade al principio de cada vector su similitud con cat
      #'> :key #'first)))                                          ; ordena de mayor a menor segun el primer elemento
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -131,8 +131,8 @@
 ;;;
 ;;; INPUT: cats: vector de vectores, representado como una lista de listas
 ;;; texts: vector de vectores, representado como una lista de listas
-;;; func: función para evaluar la similitud coseno
-;;; OUTPUT: Pares identificador de categoría con resultado de similitud coseno
+;;; func: funciÃ³n para evaluar la similitud coseno
+;;; OUTPUT: Pares identificador de categorÃ­a con resultado de similitud coseno
 ;;;
 (defun sc-classifier (cats texts func)
   (if (null texts)
@@ -259,7 +259,7 @@
     (let ((root (bisect f (first lst) (second lst) tol)))
       (if (null root)                                     ; si no puedo encontrar raiz en el intervalo
           (allroot f (rest lst) tol)                      ; devuelvo las siguientes
-        (cons root                                        ; si la encuentro, la añado a la lista
+        (cons root                                        ; si la encuentro, la aÃ±ado a la lista
               (allroot f (rest lst) tol))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;2.3;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -388,3 +388,214 @@
   (if (null (rest lstolsts))                   ; si tiene una sola lista
       (mapcar #'list (first lstolsts))         ; debe satisfacer el ejemplo 4
     (reduce #'combine-lst-lst-alt lstolsts)))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;5;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;5.1;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;En la memoria
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;5.2;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;BFS(grafo G, nodo_fuente s) 
+;  { 
+;     // recorremos todos los vÃ©rtices del grafo inicializÃ¡ndolos a NO_VISITADO,
+;     // distancia INFINITA y padre de cada nodo NULL
+;     for u âˆˆ V[G] do
+;     {
+;        estado[u] = NO_VISITADO;
+;        distancia[u] = INFINITO; /* distancia infinita si el nodo no es alcanzable */
+;        padre[u] = NULL;
+;     }
+;     estado[s] = VISITADO;
+;     distancia[s] = 0;
+;     padre[s] = NULL;
+;     CrearCola(Q); /* nos aseguramos que la cola estÃ¡ vacÃ­a */
+;     Encolar(Q, s);
+;     while !vacia(Q) do
+;     {
+;        // extraemos el nodo u de la cola Q y exploramos todos sus nodos adyacentes
+;        u = extraer(Q);
+;        for  v âˆˆ adyacencia[u]  do
+;        {
+;           if estado[v] == NO_VISITADO then
+;           {
+;                estado[v] = VISITADO;
+;                distancia[v] = distancia[u] + 1;
+;                padre[v] = u;
+;                Encolar(Q, v);
+;           }
+;        }
+;     }
+;  }
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;5.3;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;Apartado siguiente
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;5.4;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; new-paths (path node net)
+;;; Encuentra nuevos caminos a partir del nodo del grafo dado y me sirve para refrescar mi cola en la funcion bfs
+;;;
+;;; INPUT: path: lista de caminos actual
+;;; node: nodo del cual queremos ver todos los caminos que salen de el
+;;; net: lista de listas de adyacencia del grafo que queremos explorar
+;;; OUTPUT: lista de caminos que salen de nuestro nodo 
+;;;
+
+(defun new-paths (path node net) 
+	(mapcar #'(lambda(n)
+				(cons  n  path))
+			(rest (assoc node net))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; bfs (end queue net)
+;;; Breadth-first-search in graphs
+;;;
+;;; INPUT: end: nodo meta 
+;;; queue: lista con los caminos a explorar proximamente y en orden como sublistas
+;;; net: lista de listas de adyacencia del grafo que queremos explorar
+;;; OUTPUT: lista de nodos que forman el camino optimo entre el elemento que se le pasa 
+;;; en queue y end si bfs tiene exito; NIL si no hay camino
+;;;
+
+(defun bfs (end queue net) 
+	(if (null queue) '() ;si la cola que nos pasan esta vacia no hay camino
+		(let* ((path (first queue)) ;definimos el primer elemento de la cola como path, empezare a explorar por esa rama
+			   (node (first path))) ;empiezo a explorar el primer nodo de la rama, node
+			(if (eql node end) ;si el nodo que estoy explorando es el nodo meta, ya he acabado
+				(reverse path) ;en tal caso, devuelvo el camino que he hecho (lo volteo primero, pues estaba al reves por la logica del programa)
+			  (bfs end ;llamo recursivamente a la funcion para que siga explorando en anchura
+				(append (rest queue);concateno al final de mi cola el resto de caminos que tengo que explorar(al final para hacer bfs y no dfs)
+						(new-paths path node net)) 
+				net)))))
+
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;5.5;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; shortest-path (start end net)
+;;;
+;;; Esta funcion realiza la busqueda en anchura (bfs) entre dos nodos de un grafo (net)
+;;; enlaces de costes uniformes con lo que si hay solucion, la optima siempre se encontrara a la menor profundidad
+;;; con lo que esta funcion encuentra siempre el camino mas corto en el grafo net entre los nodos start y end
+;;;
+;;; INPUT: start: nodo de partida
+;;; end: nodo meta
+;;; net: lista de listas de adyacencia del grafo que queremos explorar
+;;; OUTPUT: lista con el camino entre start y end si existe; NIL si no existe tal camino
+;;;
+
+(defun shortest-path (start end net)
+	(bfs end (list (list start)) net))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;5.6;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(shortest-path 'a 'f '((a d) (b d f) (c e) (d f) (e b f) (f)))
+	
+;0: (SHORTEST-PATH A F ((A D) (B D F) (C E) (D F) (E B F) (F)))
+;    1: (BFS F ((A)) ((A D) (B D F) (C E) (D F) (E B F) (F)))
+;      2: (NEW-PATHS (A) A ((A D) (B D F) (C E) (D F) (E B F) (F)))
+;      2: NEW-PATHS returned ((D A))
+;      2: (BFS F ((D A)) ((A D) (B D F) (C E) (D F) (E B F) (F)))
+;        3: (NEW-PATHS (D A) D ((A D) (B D F) (C E) (D F) (E B F) (F)))
+;       3: NEW-PATHS returned ((F D A))
+;       3: (BFS F ((F D A)) ((A D) (B D F) (C E) (D F) (E B F) (F)))
+;       3: BFS returned (A D F)
+;     2: BFS returned (A D F)
+;   1: BFS returned (A D F)
+; 0: SHORTEST-PATH returned (A D F)	
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;5.7;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(setf grafo7 '((a b c d e)(b a d e f)(c a g)(d a b g h)(e a b g h)(f b h)(g c d e h)(h d e f g)))
+
+(shortest-path 'f 'c grafo7)
+;(F B A C)
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;5.8;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; hay-elementos-repetidos (camino-recorrido)
+;;;
+;;; Funcion para comprobar si hay elementos repetidos en nuestro path
+;;;
+;;; INPUT: camino-recorrido: nuestro path
+;;; OUTPUT: True si hay elementos repetidos en el path (camino-recorrido), NIL (False) si no
+;;;
+
+(defun hay-elementos-repetidos (camino-recorrido)
+  (or (null camino-recorrido)
+      (and (not (member (first camino-recorrido) (rest camino-recorrido)))
+	   	   (hay-elementos-repetidos (rest camino-recorrido)))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; new-paths-improved (path node net)
+;;; Version mejorada de la funcion new-paths
+;;;
+;;; INPUT: path: lista de caminos actual
+;;; node: nodo del cual queremos ver todos los caminos que salen de el
+;;; net: lista de listas de adyacencia del grafo que queremos explorar
+;;; OUTPUT: lista de caminos que salen de nuestro nodo 
+;;;
+
+(defun new-paths-improved (path node net) 
+	(if (null (hay-elementos-repetidos path))
+		NIL
+		(mapcar #'(lambda(n)
+					(cons  n  path))
+				(rest (assoc node net))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; bfs-improved (end queue net)
+;;; Breadth-first-search in graphs improved
+;;;
+;;; INPUT: end: nodo meta 
+;;; queue: lista con los caminos a explorar proximamente y en orden como sublistas
+;;; net: lista de listas de adyacencia del grafo que queremos explorar
+;;; OUTPUT: lista de nodos que forman el camino optimo entre el elemento que se le pasa 
+;;; en queue y end si bfs tiene exito; NIL si no hay camino
+;;;
+
+(defun bfs-improved (end queue net) 
+	(if (null queue) '() ;si la cola que nos pasan esta vacia no hay camino
+		(let* ((path (first queue)) ;definimos el primer elemento de la cola como path, empezare a explorar por esa rama
+			   (node (first path))) ;empiezo a explorar el primer nodo de la rama, node
+			(if (eql node end) ;si el nodo que estoy explorando es el nodo meta, ya he acabado
+				(reverse path) ;en tal caso, devuelvo el camino que he hecho (lo volteo primero, pues estaba al reves por la logica del programa)
+			  (bfs-improved end ;llamo recursivamente a la funcion para que siga explorando en anchura
+				(append (rest queue);concateno al final de mi cola el resto de caminos que tengo que explorar(al final para hacer bfs y no dfs)
+						(new-paths-improved path node net)) 
+				net)))))
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; shortest-path-improved (start end net)
+;;;
+;;; Version mejorada de la funcion shortest-path
+;;;
+;;; INPUT: start: nodo de partida
+;;; end: nodo meta
+;;; net: lista de listas de adyacencia del grafo que queremos explorar
+;;; OUTPUT: lista con el camino entre start y end si existe; NIL si no existe tal camino
+;;;
+
+(defun shortest-path-improved (start end net)
+	(bfs-improved end (list (list start)) net))
+
+
+(setf grafofalla '((a b c) (b a c) (c a b) (d b)));Grafo con bucle entre a, b y c y un enlace dirigido de d a b 
+
+(shortest-path-improved 'd 'a grafofalla);Es posible llegar de D a cualquier otro nodo, pero no al reves
+;(D B A)
+
+(shortest-path-improved 'a 'd grafofalla);No es posible ir de A a D (enlace D->B dirigido y entre A, B, C no dirigidos y bucle)
+;NIL

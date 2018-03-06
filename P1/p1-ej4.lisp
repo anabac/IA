@@ -1153,29 +1153,28 @@
 ;;                NIL  si cnf es UNSAT
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun RES-SAT-p (cnf)
-  (RES-SAT-p-aux cnf (extract-positive-literals cnf)))
+  (RES-SAT-p-aux cnf (obtiene-literales-positivos cnf)))
 
-(defun  RES-SAT-p-aux (cnf list-o-lit)
-  (let ((res (build-res (first list-o-lit) cnf)))
+(defun  RES-SAT-p-aux (cnf listaliterales)
+  (let ((res (build-res (first listaliterales) cnf)));resolucion sobre cada literal de mi fnc
     (if (and (not (null res)) 
-             (null (first res)))
-        nil
-      (if (and (null res) 
-               (null (rest list-o-lit)))
-          t
-        (RES-SAT-p-aux (simplify-cnf (append cnf res)) 
-                       (rest list-o-lit))))))
+             (null (first res))) ;se obtuvo la clausula vacia => cnf UNSAT
+      NIL
+      (if (and (null res) (null (rest listaliterales)));no se pueden hacer mas resoluciones (y no se obtuvo clausula vacia) => cnf SAT
+          T
+          (RES-SAT-p-aux (simplify-cnf (append cnf res));hago resolucion sobre cada literal de la fnc y meto el resultado en mi base de conoc (en la fnc) y simplifico esta
+                                       (rest listaliterales))))));me la voy a recorrer entera
 
-(defun extract-positive-literals (cnf)
-  (unless (null cnf)
-    (union (positivize-literals (first cnf))
-           (extract-positive-literals (rest cnf)))))
+(defun obtiene-literales-positivos (cnf);basicamente me recorro la fnc clausula a clausula pillando tosos los literales positivos de cada una mientras simplifico la fnc ampliada en la funcion auxiliar
+    (unless (null cnf)
+    (union (positiviza-literales (first cnf))
+           (obtiene-literales-positivos (rest cnf)))))
 
-(defun positivize-literals (k)
-  (unless (null k)
-    (if (negative-literal-p (first k))
-        (append (list (second (first k))) (positivize-literals (rest k)))
-      (append (list (first k)) (positivize-literals (rest k))))))
+(defun positiviza-literales (lit);pillo solo los literales positivos de la fnc
+  (unless (null lit)
+    (if (negative-literal-p (first lit))
+        (append (list (first (rest (first lit)))) (positiviza-literales (rest lit)))
+      (append (list (first lit)) (positiviza-literales (rest lit))))))
 
 ;;
 ;;  EJEMPLOS:
@@ -1209,10 +1208,12 @@
 ;;            NIL en caso de que no sea consecuencia logica.  
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun logical-consequence-RES-SAT-p (wff w)
-  ;;
-  ;; 4.6 Completa el codigo
-  ;;
-  )
+  (not (RES-SAT-p (simplify-cnf ;aplico la funcion del apartado anterior para ver si la fbf jjunto con la meta negada es SAT; el not viene de que si la nueva base es SAT, la original es UNSAT, y viceversa
+                   (append (simplify-cnf (wff-infix-to-cnf wff))
+                           (simplify-cnf (wff-infix-to-cnf 
+                                          (reduce-scope-of-negation (list +not+ w))))))))) ;junto ¬w (como fnc y reduciendo el ambito de la negacion al maximo) con la fbf que me dan (en fnc)
+
+  
 
 ;;
 ;;  EJEMPLOS:
