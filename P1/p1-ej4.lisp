@@ -1165,16 +1165,16 @@
           (RES-SAT-p-aux (simplify-cnf (append cnf res));hago resolucion sobre cada literal de la fnc y meto el resultado en mi base de conoc (en la fnc) y simplifico esta
                                        (rest listaliterales))))));me la voy a recorrer entera
 
-(defun obtiene-literales-positivos (cnf);basicamente me recorro la fnc clausula a clausula pillando tosos los literales positivos de cada una mientras simplifico la fnc ampliada en la funcion auxiliar
+(defun obtiene-literales-positivos (cnf);basicamente me recorro la fnc clausula a clausula sacando tosos los literales positivos de cada una mientras simplifico la fnc ampliada en la funcion auxiliar
     (unless (null cnf)
     (union (positiviza-literales (first cnf))
            (obtiene-literales-positivos (rest cnf)))))
 
-(defun positiviza-literales (lit);pillo solo los literales positivos de la fnc
-  (unless (null lit)
-    (if (negative-literal-p (first lit))
-        (append (list (first (rest (first lit)))) (positiviza-literales (rest lit)))
-      (append (list (first lit)) (positiviza-literales (rest lit))))))
+(defun positiviza-literales (cls);conservo solo los literales positivos de la fnc
+  (unless (null cls)
+    (if (negative-literal-p (first cls))
+        (append (list (first (rest (first cls)))) (positiviza-literales (rest cls)));si es negativo no lo incluimos
+      (append (list (first cls)) (positiviza-literales (rest cls))))));si es un literal positivo, si
 
 ;;
 ;;  EJEMPLOS:
