@@ -1,3 +1,7 @@
+;; Autores:
+;;  Aitor Arnaiz del Val
+;;  Alejandro Cabana Suárez
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Definicion de simbolos que representan valores de verdad,
 ;; conectores y predicados para evaluar si una expresion LISP
@@ -571,7 +575,7 @@
 ;; EVALUA A : FBF equivalente en formato prefijo FNC 
 ;;            con conectores ^, v
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun combine-elt-lst (elt lst)
+(defun combine-elt-lst- (elt lst)
   (if (null lst)          ;; si la lista es vacia
       (list (list elt))   ;; devuelve ((elt)), que es como si hubiera hecho el caso general con (NIL) como lista
     (mapcar #'(lambda (x) (cons elt x)) lst))) ;; a cada elemento de la lista (que va a ser una fbf) le añade elt delante (... (elt . list[i]) ...)
@@ -590,7 +594,7 @@
       NIL
     (let ((lst (first nf)))
       (mapcan #'(lambda (x)                         ;; cada elemento de nf
-                  (combine-elt-lst                  ;; lo combina
+                  (combine-elt-lst-                 ;; lo combina
                    x 
                    (exchange-NF-aux (rest nf))))    ;; con todas las combinaciones de los siguientes
         (if (literal-p lst) (list lst) (rest lst))))))  ;; quitando los conectores de haberlos
@@ -1275,4 +1279,3 @@
  (logical-consequence-RES-SAT-p 
   '(((¬ p) => q) ^ (p <=> ((¬ a) ^ b)) ^ ( (¬ p) => (r  ^ (¬ q)))) 
   '(¬ q)))
-
