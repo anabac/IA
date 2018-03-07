@@ -1153,28 +1153,26 @@
 ;;                NIL  si cnf es UNSAT
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun RES-SAT-p (cnf)
-  (RES-SAT-p-aux cnf (obtiene-literales-positivos cnf)))
+  (if (null cnf)  ;; Si es conjuncion vacia, es tautologia
+      T           ;; SAT
+    (RES-SAT-p-rec (positive-literals cnf) cnf))) ;; alpha_0 = cnf
 
-(defun  RES-SAT-p-aux (cnf listaliterales)
-  (let ((res (build-res (first listaliterales) cnf)));resolucion sobre cada literal de mi fnc
-    (if (and (not (null res)) 
-             (null (first res))) ;se obtuvo la clausula vacia => cnf UNSAT
-      NIL
-      (if (and (null res) (null (rest listaliterales)));no se pueden hacer mas resoluciones (y no se obtuvo clausula vacia) => cnf SAT
-          T
-          (RES-SAT-p-aux (simplify-cnf (append cnf res));hago resolucion sobre cada literal de la fnc y meto el resultado en mi base de conoc (en la fnc) y simplifico esta
-                                       (rest listaliterales))))));me la voy a recorrer entera
+(defun RES-SAT-p-rec (pos-lits alpha)
+  (cond 
+   ((equal alpha (list NIL))  ;; Si llega a la clausula vacia
+    NIL)                      ;; UNSAT
+   ((null pos-lits) ;; Si no quedan literales positivos, no se puede seguir resolviendo
+    T)              ;; SAT
+   (T                                                       ;; En cualquier otro caso
+    (RES-SAT-p-rec (rest pos-lits)                          ;; con el siguiente literal positivo
+                   (simplify-cnf                            ;; simplificar alpha_j
+                    (build-RES (first pos-lits) alpha)))))) ;; alpha_j = RES_lambda(alpha_j-1)
 
-(defun obtiene-literales-positivos (cnf);basicamente me recorro la fnc clausula a clausula sacando tosos los literales positivos de cada una mientras simplifico la fnc ampliada en la funcion auxiliar
-    (unless (null cnf)
-    (union (positiviza-literales (first cnf))
-           (obtiene-literales-positivos (rest cnf)))))
+(defun positive-literals (cnf) ;; Devuelve los literales positivos de cnf
+  (mapcan #'(lambda (k)
+              (remove-if #'negative-literal-p k))
+    cnf))
 
-(defun positiviza-literales (cls);conservo solo los literales positivos de la fnc
-  (unless (null cls)
-    (if (negative-literal-p (first cls))
-        (append (list (first (rest (first cls)))) (positiviza-literales (rest cls)));si es negativo no lo incluimos
-      (append (list (first cls)) (positiviza-literales (rest cls))))));si es un literal positivo, si
 
 ;;
 ;;  EJEMPLOS:
