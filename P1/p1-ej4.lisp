@@ -1206,12 +1206,13 @@
 ;;            NIL en caso de que no sea consecuencia logica.  
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun logical-consequence-RES-SAT-p (wff w)
-  (not (RES-SAT-p (simplify-cnf ;aplico la funcion del apartado anterior para ver si la fbf jjunto con la meta negada es SAT; el not viene de que si la nueva base es SAT, la original es UNSAT, y viceversa
-                   (append (simplify-cnf (wff-infix-to-cnf wff))
-                           (simplify-cnf (wff-infix-to-cnf 
-                                          (reduce-scope-of-negation (list +not+ w))))))))) ;junto ¬w (como fnc y reduciendo el ambito de la negacion al maximo) con la fbf que me dan (en fnc)
-
-  
+  (not                            ;; si no es SAT entonces es consecuencia logica
+   (RES-SAT-p                     ;; mira si es SAT
+    (simplify-cnf                 ;; simplifica cnf
+     (wff-infix-to-cnf            ;; convierte en cnf
+      (list wff                   ;; (wff      )
+            +and+                 ;;      ^
+            (list +not+ w)))))))  ;;        ¬w
 
 ;;
 ;;  EJEMPLOS:
