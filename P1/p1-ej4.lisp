@@ -663,7 +663,7 @@
 ;;;(^ (V (¬ Y)) (V R S (¬ P)) (V R S M) 
 ;;;   (V R S C D) (V R (¬ X) (¬ P)) 
 ;;;   (V R (¬ X) M) (V R (¬ X) C D)
-;;;   (V (¬ A) (¬ B)) (V G))  
+;;;   (V (¬ A) (¬ B)) (V G))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; EJERCICIO 4.2.5:
@@ -1110,17 +1110,17 @@
        (append neut-k
                (mapcan #'(lambda (x)
                            (resolve-on lambda (first x) (second x)))
-                 (combine-lst-lst pos-k
+                 (combine-lst-lst-aux pos-k
                                   neg-k)))))))
   
 ;; Cogidas de un ej anterior
-(defun combine-elt-lst (ele lst)
+(defun combine-elt-lst-aux (ele lst)
   (mapcar #'(lambda (list1) 
               (list ele list1)) lst))
 
-(defun combine-lst-lst (lst1 lst2)
+(defun combine-lst-lst-aux (lst1 lst2)
   (mapcan #'(lambda (e)
-              (combine-elt-lst e lst2))
+              (combine-elt-lst-aux e lst2))
     lst1))
 
 ;;
