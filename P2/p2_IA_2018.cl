@@ -194,8 +194,20 @@
 ;; BEGIN: Exercise 3 -- Goal test
 ;;
 
+(defun visited-all (node planets)
+  (let* ((1st-state        (node-state node))
+         (parent           (node-parent node))
+         (updated-planets  (remove 1st-state planets)))
+    (cond ((null updated-planets)
+           t)
+          ((null parent)
+           nil)
+          (t
+           (visited-all parent updated-planets)))))
+
 (defun f-goal-test-galaxy (node planets-destination planets-mandatory) 
-  ...)
+  (when (member (node-state node) planets-destination)
+    (visited-all node planets-mandatory)))
 
 
 (defparameter node-01
