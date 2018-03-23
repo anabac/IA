@@ -147,13 +147,21 @@
 ;;
 ;; BEGIN: Exercise 2 -- Navigation operators
 ;;
-
+(defun navigate (state holes planets-forbidden name)
+  (mapcan #'(lambda (hole)
+              (when (and (equal state (first hole))
+                         (not (member (second hole) planets-forbidden)))
+                (list (make-action :name name
+                                   :origin state
+                                   :final (second hole)
+                                   :cost (third hole)))))
+    holes))
 
 (defun navigate-white-hole (state white-holes)
-  ...)
+  (navigate state white-holes nil 'navigate-white-hole))
 
 (defun navigate-worm-hole (state worm-holes planets-forbidden)
-  ...)
+  (navigate state worm-holes planets-forbidden 'navigate-worm-hole))
 
 
 (navigate-worm-hole 'Mallory *worm-holes* *planets-forbidden*)  ;-> 
