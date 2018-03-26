@@ -291,18 +291,22 @@
 ;;  BEGIN: Exercise 4 -- Define the galaxy structure
 ;;
 ;;
+(defun get-heuristic (node sensors)
+	(if (equal node (first (first sensors)))
+		(second (first sensors))
+		(get-heuristic node (rest sensors))))
+
 (defparameter *galaxy-M35* 
   (make-problem 
    :states               *planets*          
    :initial-state        *planet-origin*
-   :f-h                  #'(lambda (state) ...)
-   :f-goal-test          #'(lambda (node) ...)
-   :f-search-state-equal #'(lambda (node-1 node-2)...)
+   :f-h                  #'(lambda (state) (get-heuristic state *sensors*))
+   :f-goal-test          #'(lambda (node) (f-goal-test-galaxy node *planets-destination* *planets-mandatory*))
+   :f-search-state-equal #'(lambda (node-1 node-2) (f-search-state-equal-galaxy node-1 node-2 *planets-mandatory*))
    :operators            (list 
                           #'(lambda (node)
-                              ...)
-                             ...)))
-
+                              (navigate-worm-hole (node-state node) *worm-holes* *planets-forbidden*)
+                              (navigate-white-hole (node-state node) *white-holes*)))))
 
 ;;
 ;;  END: Exercise 4 -- Define the galaxy structure
