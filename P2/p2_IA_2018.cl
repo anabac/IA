@@ -224,6 +224,35 @@
 (f-goal-test-galaxy node-04 '(kentares urano) '(Avalon Katril)); -> T
 
 
+(defun not-visited-mandatory (node planets-mandatory) ;mismo codigo que en la de arriba pero en lugar de una lista devuelvo la lista mandatory sin los planetas por los que se han pasado
+    (let* ((1st-state        (node-state node))
+         (parent           (node-parent node))
+         (updated-planets  (remove 1st-state planets-mandatory)))
+    (cond ((null updated-planets)
+           updated-planets)
+          ((null parent)
+           updated-planets)
+          (t
+           (visited-all parent updated-planets)))))
+
+(defun f-search-state-equal-galaxy (node-1 node-2 &optional planets-mandatory)
+ (let ((node1 (node-state node-1))
+ 	   (node2 (node-state node-2)))
+ (if (and (equal node1 node2)
+          (equal (not-visited-mandatory node-1 planets-mandatory) (not-visited-mandatory node-2 planets-mandatory)))
+      t
+      NIL)))
+
+(f-search-state-equal-galaxy node-01 node-01) ;-> T
+(f-search-state-equal-galaxy node-01 node-02) ;-> NIL
+(f-search-state-equal-galaxy node-02 node-04) ;-> T
+(f-search-state-equal-galaxy node-01 node-01 '(Avalon)) ;-> T
+(f-search-state-equal-galaxy node-01 node-02 '(Avalon)) ;-> NIL
+(f-search-state-equal-galaxy node-02 node-04 '(Avalon)) ;-> T
+(f-search-state-equal-galaxy node-01 node-01 '(Avalon Katril)) ;-> T
+(f-search-state-equal-galaxy node-01 node-02 '(Avalon Katril)) ;-> NIL
+(f-search-state-equal-galaxy node-02 node-04 '(Avalon Katril)) ;-> NIL
+
 ;;
 ;; END: Exercise 3 -- Goal test
 ;;
