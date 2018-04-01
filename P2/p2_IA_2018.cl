@@ -412,7 +412,7 @@
 (defun node-compare-by-f (node-1 node-2);veo si el valor de la f del node-1 es <= que el del node-2 (T); en caso contrario, NIL
 (<= (node-f node-1) (node-f node-2)))
 
-(setf *uniform-cost*
+(defparameter *uniform-cost*
   (make-strategy
     :name 'uniform-cost
     :node-compare-p 'node-compare-by-g))
@@ -555,14 +555,55 @@
 ;;; 
 ;;;    BEGIN Exercise 8: Search algorithm
 ;;;
+(defun check-equal-state (node closed-list);en node llamo con el first de open-nodes
+  (if (or (null node) (null closed-list))
+    NIL
+    (if f-search-state-equal-galaxy (node (first closed-list) *planets-mandatory*)
+      node
+      (check-equal-state node (rest closed-list)))))
+
+
+(defun graph-search-aux (problem strategy open-nodes closed-nodes)
+  (if (null open-nodes)
+      NIL
+    (if (funcall (problem-f-goal-test problem) ;si el primer nodo de la lista de abiertos es la meta hemos acabado
+                 (first open-nodes)) ;le paso el node como tal, no el state
+        (first open-nodes)
+      (if (or (not (check-equal-state (first open-nodes) closed-nodes))
+              (equal (first open-nodes) 
+                     (first (insert-nodes-strategy (first open-nodes) 
+                                                   closed-nodes strategy))))
+          (graph-search-aux 
+           problem 
+           strategy 
+           (insert-nodes-strategy 
+            (expand-node (first open-nodes) problem) 
+            (rest open-nodes) 
+            strategy)
+           
+           (append (list (first open-nodes)) closed-nodes))
+        
+        (graph-search-aux problem strategy (rest open-nodes)  closed-nodes)))))
+
+;;llamamos a la funcion que realiza la busqueda como tal con las listas 
+;;de nodos abiertos (todo inbicializado a cero) y cerrados (lista vacia, 
+;;al principio ningun cerrado) inicializadas
+
 (defun graph-search (problem strategy)
-  ...)
+  (graph-search-aux problem strategy 
+    (list (make-node 
+      :state (problem-initial-state problem)
+      :depth 0
+      :g 0
+      :f 0))
+    (list )))
 
 
 ;
 ;  Solve a problem using the A* strategy
 ;
-(defun a-star-search (problem)...)
+(defun a-star-search (problem)
+  (graph-search problem *A-star*))
 
 
 (graph-search *galaxy-M35* *A-star*);->
@@ -588,14 +629,27 @@
 ;;; 
 ;;;    BEGIN Exercise 9: Solution path / action sequence
 ;;;
+(defun solution-path-aux (node path)
+  (if (or (null node) (null (node-state node)))
+    path
+    (solution-path-aux (node-parent node) (cons (node-state node) path))))
+
 (defun solution-path (node)
-  ...)
+  (solution-path-aux node '()))
 
 (solution-path nil) ;;; -> NIL 
 (solution-path (a-star-search *galaxy-M35*))  ;;;-> (MALLORY ...)
 
-(defun action-sequence-aux (node)
-  ...)
+
+
+(defun action-sequence-aux (node actions) ;se llama con actions vacia en la funcion principal
+  (if (or (null node) (null (node-action node)))
+    actions
+    (action-sequence-aux (node-parent node) (cons (node-action node) actions))));meto las acciones quer me han llevado
+                                                        ;a cada nodo desde el mas profundo hasta que no tenga un predecesor del que sacar acciones
+
+(defun action-sequence (node)
+  (action-sequence-aux node '()))
 
 (action-sequence (a-star-search *galaxy-M35*))
 ;;; ->
@@ -612,24 +666,31 @@
 ;;;    BEGIN Exercise 10: depth-first / breadth-first
 ;;;
 
+(defun depth-first-node-compare-p (node-1 node-2)
+  (if (or (null node-1) (null node-2))
+    NIL
+  (> (node-depth node-1) (node-depth node-2))))
+
+
 (defparameter *depth-first*
   (make-strategy
    :name 'depth-first
-   :node-compare-p #'depth-first-node-compare-p))
+   :node-compare-p 'depth-first-node-compare-p))
 
-(defun depth-first-node-compare-p (node-1 node-2)
-  ...)
 
 (solution-path (graph-search *galaxy-M35* *depth-first*))
 ;;; -> (MALLORY ... )
 
+(defun breadth-first-node-compare-p (node-1 node-2)
+  (if (or (null node-1) (null node-2))
+    NIL
+  (< (node-depth node-1) (node-depth node-2))))
+
+
 (defparameter *breadth-first*
   (make-strategy
    :name 'breadth-first
-   :node-compare-p #'breadth-first-node-compare-p))
-
-(defun breadth-first-node-compare-p (node-1 node-2)
-  ...)
+   :node-compare-p 'breadth-first-node-compare-p))
 
 (solution-path (graph-search *galaxy-M35* *breadth-first*))
 ;; -> (MALLORY ... )
