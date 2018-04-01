@@ -404,18 +404,30 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;;  BEGIN Exercise 6 -- Node list management
-;;;  
+;;; 
+
+(defun node-compare-by-g (node-1 node-2);veo si el valor de la g del node-1 es <= que el del node-2 (T); en caso contrario, NIL 
+(<= (node-g node-1) (node-g node-2))) ;utilizo esta comparacion para coste uniforme
+  
+(defun node-compare-by-f (node-1 node-2);veo si el valor de la f del node-1 es <= que el del node-2 (T); en caso contrario, NIL
+(<= (node-f node-1) (node-f node-2)))
+
+(setf *uniform-cost*
+  (make-strategy
+    :name 'uniform-cost
+    :node-compare-p 'node-compare-by-g))
+
 (defun insert-nodes-strategy (nodes lst-nodes strategy)
-  ...)
+  (sort (append nodes lst-nodes) (strategy-node-compare-p strategy)))
 
 
 
 (defparameter node-01
    (make-node :state 'Avalon :depth 0 :g 0 :f 0) )
 (defparameter node-02
-   (make-node :state 'Kentares :depth 2 :g 50 :f 50) )
+  (make-node :state 'Kentares :depth 2 :g 50 :f 50) )
 
-(print (insert-nodes-strategy (list node-00 node-01 node-02) 
+(print (insert-nodes-strategy (list node-00 node-01 node-02) ;salen bien pero desordenados
                         lst-nodes-00 
                         *uniform-cost*));->
 ;;;(#S(NODE :STATE AVALON 
@@ -513,7 +525,7 @@
 
 
 ;;
-;;    END: Exercize 6 -- Node list management
+;;    END: Exercise 6 -- Node list management
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -524,11 +536,13 @@
 ;;
 ;; A strategy is, basically, a comparison function between nodes to tell 
 ;; us which nodes should be analyzed first. In the A* strategy, the first 
-;; node to be analyzed is the one with the smallest value of g+h
+;; node to be analyzed is the one with the smallest value of g+h (= f)
 ;;
 
 (defparameter *A-star*
-  (make-strategy ...))
+  (make-strategy 
+    :name 'A_star 
+    :node-compare-p 'node-compare-by-f))
 
 ;;
 ;; END: Exercise 7 -- Definition of the A* strategy
