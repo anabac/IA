@@ -223,6 +223,15 @@
 (f-goal-test-galaxy node-03 '(kentares urano) '(Avalon Katril)); -> NIL
 (f-goal-test-galaxy node-04 '(kentares urano) '(Avalon Katril)); -> T
 
+;;
+;; END: Exercise 3 -- Goal test
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; BEGIN: Exercise  -- Equal predicate for search states
+;;
 
 (defun not-visited-mandatory (node planets-mandatory) ;mismo codigo que en la de arriba pero en lugar de una lista devuelvo la lista mandatory sin los planetas por los que se han pasado
     (let* ((1st-state        (node-state node))
@@ -254,32 +263,6 @@
 (f-search-state-equal-galaxy node-02 node-04 '(Avalon Katril)) ;-> NIL
 
 ;;
-;; END: Exercise 3 -- Goal test
-;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; BEGIN: Exercise  -- Equal predicate for search states
-;;
-
-(defun f-search-state-equal-galaxy (node-1 node-2 &optional planets-mandatory)
-  ...)
-       
-(f-search-state-equal-galaxy node-01 node-01) ;-> T
-(f-search-state-equal-galaxy node-01 node-02) ;-> NIL
-(f-search-state-equal-galaxy node-02 node-04) ;-> T
-
-(f-search-state-equal-galaxy node-01 node-01 '(Avalon)) ;-> T
-(f-search-state-equal-galaxy node-01 node-02 '(Avalon)) ;-> NIL
-(f-search-state-equal-galaxy node-02 node-04 '(Avalon)) ;-> T
-
-(f-search-state-equal-galaxy node-01 node-01 '(Avalon Katril)) ;-> T
-(f-search-state-equal-galaxy node-01 node-02 '(Avalon Katril)) ;-> NIL
-(f-search-state-equal-galaxy node-02 node-04 '(Avalon Katril)) ;-> NIL
-
-
-;;
 ;; END: Exercise  -- Equal predicate for search states
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -292,9 +275,11 @@
 ;;
 ;;
 (defun get-heuristic (node sensors)
-	(if (equal node (first (first sensors)))
-		(second (first sensors))
-		(get-heuristic node (rest sensors))))
+  (if (null sensors)
+    NIL
+  	(if (equal node (first (first sensors)))
+  		(second (first sensors))
+  		(get-heuristic node (rest sensors)))))
 
 (defparameter *galaxy-M35* 
   (make-problem 
@@ -305,8 +290,9 @@
    :f-search-state-equal #'(lambda (node-1 node-2) (f-search-state-equal-galaxy node-1 node-2 *planets-mandatory*))
    :operators            (list 
                           #'(lambda (node)
-                              (navigate-worm-hole (node-state node) *worm-holes* *planets-forbidden*)
-                              (navigate-white-hole (node-state node) *white-holes*)))))
+                              (navigate-white-hole (node-state node) *white-holes*))
+                          #'(lambda (node)
+                              (navigate-worm-hole (node-state node) *worm-holes* *planets-forbidden*)))))
 
 ;;
 ;;  END: Exercise 4 -- Define the galaxy structure
@@ -318,15 +304,63 @@
 ;;
 ;; BEGIN Exercise 5: Expand node
 ;;
+
 (defun expand-node (node problem)
-  ...)
+  (if (null node)
+      NIL
+    (if (null problem)
+        NIL
+      (mapcar #'(lambda (x) ( make-node 
+                             :state (action-final x)
+                             :parent node
+                             :action x
+                             ;;depth = 1+node-depth node
+                             :depth (+ 1 (if (node-depth node) 
+                                             (node-depth node) 
+                                           0)) 
+                             :g (+ (if (node-g node) 
+                                       (node-g node) 
+                                     0 ) 
+                                   (if(action-cost x) ;g=node-g + cost
+                                       (action-cost x) 
+                                     0 ))
+                             :h (funcall (problem-f-h problem) ;h=sensors
+                                         (action-final x)) 
+                             ;;f= g+h
+                             :f (+ (+ (if (node-g node) 
+                                          (node-g node) 
+                                        0 ) 
+                                      (if(action-cost x) 
+                                          (action-cost x) 
+                                        0 )) 
+                                   
+                                   (if (null (funcall (problem-f-h problem) 
+                                                      (action-final x))
+                                             ) 0 
+                                     (funcall (problem-f-h problem) 
+                                              (action-final x))))  
+                             
+                             )) 
+        ;;todos los elementos de las 2 listas donde se encuentra el nombre de node-name
+
+        (append          
+         
+         (funcall (first (problem-operators problem )) 
+                  node) 
+         
+         (funcall (second (problem-operators problem )) 
+                  node))))))
+
+
+
+
+
 
 (defparameter node-00
    (make-node :state 'Proserpina :depth 12 :g 10 :f 20) )
 
 (defparameter lst-nodes-00
   (expand-node node-00 *galaxy-M35*)) 
-
 
 (print lst-nodes-00)
 
