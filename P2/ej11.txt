@@ -1,0 +1,12 @@
+1.
+	1.1. Este diseño intenta generalizar y modularizar lo máximo posible. De esta manera, si quisiéramos resolver un problema similar pero con alguna variación, bastaría con modificar una pequeña parte del código y el resto funcionaría igual.
+	1.2. Como comentamos antes, esto se hace para que no sea una única funcion fija la que se use, sino que se pueda crear otro test, otra heurística u otros operadores y utilizarlos sin apenas modificar el código ya existente.
+
+2. El algoritmo de búsqueda que estamos utilizando es A* (que no es muy eficiente en términos de memoria), así que no podemos eliminar ningún nodo aunque ya lo hayamos explorado. Esto quiere decir que no se puede reducir el número de nodos que se guardarán en memoria.
+Ahora bien, si en lugar de utilizar este sistema que guarda una referencia al nodo padre utilizáramos algo como una lista de nodos, cada vez que añadiéramos un nodo al camino se crearía una nueva copia de la lista. En conclusión, guardar una referencia al padre en cada nodo, nos premite tener una única instancia de cada nodo, en lugar de crear una nueva a cada iteración del algoritmo.
+
+3. El algoritmo que utilizamos es A*. Dependiendo de la calidad de la heurística, la complejidad puede llegar a ser exponencial. O(b^d), d = C*/epsilon, donde b es el factor de ramificación (7 en nuestro caso), C* es el coste óptimo y epsilon es el coste mínimo por acción (en este caso 3).
+
+4. La complejidad espacial en este caso es la misma que la temporal, ya que se mantienen todos los nodos en memoria.
+
+5. En primer lugar, este límite debe estar almacenado. El mejor lugar para hacerlo sería en un nuevo campo de la estructura 'node'. Los nodos que genere 'expand-node' con el operador 'navigate-worm-hole' tendrán un límite inferior al del padre en una unidad. Si el límite del padre es 0, entonces se descartan los hijos generados con 'navigate-worm-hole'.
