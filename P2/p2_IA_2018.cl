@@ -17,13 +17,13 @@
   states               ; List of states
   initial-state        ; Initial state
   f-h                  ; reference to a function that evaluates to the 
-                       ; value of the heuristic of a state
+  ; value of the heuristic of a state
   f-goal-test          ; reference to a function that determines whether 
-                       ; a state fulfils the goal 
+  ; a state fulfils the goal 
   f-search-state-equal ; reference to a predictate that determines whether
-                       ; two nodes are equal, in terms of their search state      
+  ; two nodes are equal, in terms of their search state      
   operators)           ; list of operators (references to functions) to 
-                       ; generate successors
+; generate successors
 ;;
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -98,7 +98,7 @@
     (Mallory Avalon 9) (Mallory Katril 5) (Mallory Proserpina 11)
     (Proserpina Kentares 12) (Proserpina Mallory 11) (Proserpina Sirtis 9)
     (Sirtis Davion 8) (Sirtis Katril 10) (Sirtis Proserpina 9)))
- 
+
 (defparameter *sensors* 
   '((Avalon 15) (Davion 5) (Katril 9) (Kentares 14) (Mallory 12) (Proserpina 7) (Sirtis 0)))
 
@@ -211,13 +211,13 @@
 
 
 (defparameter node-01
-   (make-node :state 'Avalon) )
+  (make-node :state 'Avalon) )
 (defparameter node-02
-   (make-node :state 'Kentares :parent node-01))
+  (make-node :state 'Kentares :parent node-01))
 (defparameter node-03
-   (make-node :state 'Katril :parent node-02))
+  (make-node :state 'Katril :parent node-02))
 (defparameter node-04
-   (make-node :state 'Kentares :parent node-03))
+  (make-node :state 'Kentares :parent node-03))
 (f-goal-test-galaxy node-01 '(kentares urano) '(Avalon Katril)); -> NIL
 (f-goal-test-galaxy node-02 '(kentares urano) '(Avalon Katril)); -> NIL
 (f-goal-test-galaxy node-03 '(kentares urano) '(Avalon Katril)); -> NIL
@@ -234,23 +234,21 @@
 ;;
 
 (defun not-visited-mandatory (node planets-mandatory) ;mismo codigo que en la de arriba pero en lugar de una lista devuelvo la lista mandatory sin los planetas por los que se han pasado
-    (let* ((1st-state        (node-state node))
+  (let* ((1st-state        (node-state node))
          (parent           (node-parent node))
          (updated-planets  (remove 1st-state planets-mandatory)))
     (cond ((null updated-planets)
-           updated-planets)
+           nil)
           ((null parent)
            updated-planets)
           (t
-           (visited-all parent updated-planets)))))
+           (not-visited-mandatory parent updated-planets)))))
 
 (defun f-search-state-equal-galaxy (node-1 node-2 &optional planets-mandatory)
- (let ((node1 (node-state node-1))
- 	   (node2 (node-state node-2)))
- (if (and (equal node1 node2)
-          (equal (not-visited-mandatory node-1 planets-mandatory) (not-visited-mandatory node-2 planets-mandatory)))
-      t
-      NIL)))
+  (let ((node1 (node-state node-1))
+        (node2 (node-state node-2)))
+    (and (equal node1 node2)
+         (equal (not-visited-mandatory node-1 planets-mandatory) (not-visited-mandatory node-2 planets-mandatory)))))
 
 (f-search-state-equal-galaxy node-01 node-01) ;-> T
 (f-search-state-equal-galaxy node-01 node-02) ;-> NIL
@@ -275,11 +273,10 @@
 ;;
 ;;
 (defun get-heuristic (node sensors)
-  (if (null sensors)
-    NIL
-  	(if (equal node (first (first sensors)))
-  		(second (first sensors))
-  		(get-heuristic node (rest sensors)))))
+  (unless (null sensors)
+    (if (equal node (first (first sensors)))
+        (second (first sensors))
+      (get-heuristic node (rest sensors)))))
 
 (defparameter *galaxy-M35* 
   (make-problem 
@@ -306,58 +303,37 @@
 ;;
 
 (defun expand-node (node problem)
-  (if (null node)
-      NIL
-    (if (null problem)
-        NIL
-      (mapcar #'(lambda (x) ( make-node 
+  (unless (or (null node) (null problem))
+    (mapcar #'(lambda (x) (let ((depth (if (node-depth node) 
+                                           (node-depth node) 
+                                         0))
+                                (g     (+ (if (node-g node) 
+                                              (node-g node) 
+                                            0 ) 
+                                          (if (action-cost x) ;g=node-g + cost
+                                              (action-cost x) 
+                                            0 )))
+                                (h     (funcall (problem-f-h problem) ;h=sensors
+                                                (action-final x))))
+                            (make-node 
                              :state (action-final x)
                              :parent node
                              :action x
-                             ;;depth = 1+node-depth node
-                             :depth (+ 1 (if (node-depth node) 
-                                             (node-depth node) 
-                                           0)) 
-                             :g (+ (if (node-g node) 
-                                       (node-g node) 
-                                     0 ) 
-                                   (if(action-cost x) ;g=node-g + cost
-                                       (action-cost x) 
-                                     0 ))
-                             :h (funcall (problem-f-h problem) ;h=sensors
-                                         (action-final x)) 
-                             ;;f= g+h
-                             :f (+ (+ (if (node-g node) 
-                                          (node-g node) 
-                                        0 ) 
-                                      (if(action-cost x) 
-                                          (action-cost x) 
-                                        0 )) 
-                                   
-                                   (if (null (funcall (problem-f-h problem) 
-                                                      (action-final x))
-                                             ) 0 
-                                     (funcall (problem-f-h problem) 
-                                              (action-final x))))  
-                             
-                             )) 
-        ;;todos los elementos de las 2 listas donde se encuentra el nombre de node-name
-
-        (append          
-         
-         (funcall (first (problem-operators problem )) 
-                  node) 
-         
-         (funcall (second (problem-operators problem )) 
-                  node))))))
-
+                             :depth (+ 1 depth) 
+                             :g g
+                             :h h
+                             :f (+ g h)))) 
+      
+      (mapcan #'(lambda (op)            ;; lista con los nodos que resultan
+                  (funcall op node))    ;; de aplicar al nodo
+        (problem-operators problem))))) ;; cada uno de los operadores
 
 
 
 
 
 (defparameter node-00
-   (make-node :state 'Proserpina :depth 12 :g 10 :f 20) )
+  (make-node :state 'Proserpina :depth 12 :g 10 :f 20) )
 
 (defparameter lst-nodes-00
   (expand-node node-00 *galaxy-M35*)) 
@@ -407,15 +383,15 @@
 ;;; 
 
 (defun node-compare-by-g (node-1 node-2);veo si el valor de la g del node-1 es <= que el del node-2 (T); en caso contrario, NIL 
-(<= (node-g node-1) (node-g node-2))) ;utilizo esta comparacion para coste uniforme
-  
+  (<= (node-g node-1) (node-g node-2))) ;utilizo esta comparacion para coste uniforme
+
 (defun node-compare-by-f (node-1 node-2);veo si el valor de la f del node-1 es <= que el del node-2 (T); en caso contrario, NIL
-(<= (node-f node-1) (node-f node-2)))
+  (<= (node-f node-1) (node-f node-2)))
 
 (defparameter *uniform-cost*
   (make-strategy
-    :name 'uniform-cost
-    :node-compare-p 'node-compare-by-g))
+   :name 'uniform-cost
+   :node-compare-p 'node-compare-by-g))
 
 (defun insert-nodes-strategy (nodes lst-nodes strategy)
   (sort (append nodes lst-nodes) (strategy-node-compare-p strategy)))
@@ -423,13 +399,13 @@
 
 
 (defparameter node-01
-   (make-node :state 'Avalon :depth 0 :g 0 :f 0) )
+  (make-node :state 'Avalon :depth 0 :g 0 :f 0) )
 (defparameter node-02
   (make-node :state 'Kentares :depth 2 :g 50 :f 50) )
 
 (print (insert-nodes-strategy (list node-00 node-01 node-02) ;salen bien pero desordenados
-                        lst-nodes-00 
-                        *uniform-cost*));->
+                              lst-nodes-00 
+                              *uniform-cost*));->
 ;;;(#S(NODE :STATE AVALON 
 ;;;         :PARENT NIL 
 ;;;         :ACTION NIL 
@@ -521,7 +497,7 @@
 ;;;(insert-nodes-strategy '(4 8 6 2) '(1 3 5 7)
 ;;;		(make-strategy 	:name 'simple
 ;;;					:node-compare-p #'<));-> (1 2 3 4 5 6 7)
- 
+
 
 
 ;;
@@ -541,8 +517,8 @@
 
 (defparameter *A-star*
   (make-strategy 
-    :name 'A_star 
-    :node-compare-p 'node-compare-by-f))
+   :name 'A_star 
+   :node-compare-p 'node-compare-by-f))
 
 ;;
 ;; END: Exercise 7 -- Definition of the A* strategy
@@ -556,34 +532,29 @@
 ;;;    BEGIN Exercise 8: Search algorithm
 ;;;
 (defun check-equal-state (node closed-list);en node llamo con el first de open-nodes
-  (if (or (null node) (null closed-list))
-    NIL
-    (if f-search-state-equal-galaxy (node (first closed-list) *planets-mandatory*)
-      t
+  (unless (or (null node) (null closed-list))
+    (if (and (f-search-state-equal-galaxy node (first closed-list) *planets-mandatory*) ; si son el mismo planeta y llevan los mismos obligatorios recorridos
+             (>= (node-f node) (node-f (first closed-list)))) ; y ademas el nuevo tiene mayor f (entonces no merece la pena explorarlo)
+        t                                                    ; entonces consideramos que ya esta cerrado
       (check-equal-state node (rest closed-list)))))
 
 
 (defun graph-search-aux (problem strategy open-nodes closed-nodes)
-  (if (null open-nodes)
-      NIL
-    (if (funcall (problem-f-goal-test problem) ;si el primer nodo de la lista de abiertos es la meta hemos acabado
-                 (first open-nodes)) ;le paso el node como tal, no el state
-        (first open-nodes)
-      (if (or (not (member (first open-nodes) closed-nodes));si no esta en closed nodes
-              (equal (first open-nodes) 
-                     (first (insert-nodes-strategy (first open-nodes) 
-                                                   closed-nodes strategy))))
-          (graph-search-aux 
-           problem 
-           strategy 
-           (insert-nodes-strategy 
-            (expand-node (first open-nodes) problem) 
-            (rest open-nodes) 
-            strategy)
-           
-           (append (list (first open-nodes)) closed-nodes))
-        
-        (graph-search-aux problem strategy (rest open-nodes)  closed-nodes)))))
+  (unless (null open-nodes)
+    (let ((1st-open     (first open-nodes)))
+      (if (funcall (problem-f-goal-test problem) ;si el primer nodo de la lista de abiertos es la meta hemos acabado
+                   1st-open) ;le paso el node como tal, no el state
+          1st-open
+        (if (not (check-equal-state 1st-open closed-nodes))
+            (graph-search-aux problem
+                              strategy 
+                              (insert-nodes-strategy (expand-node 1st-open problem) 
+                                                     (rest open-nodes) 
+                                                     strategy)
+                              
+                              (cons 1st-open closed-nodes))
+          
+          (graph-search-aux problem strategy (rest open-nodes)  closed-nodes))))))
 
 ;;llamamos a la funcion que realiza la busqueda como tal con las listas 
 ;;de nodos abiertos (todo inbicializado a cero) y cerrados (lista vacia, 
@@ -591,12 +562,12 @@
 
 (defun graph-search (problem strategy)
   (graph-search-aux problem strategy 
-    (list (make-node 
-      :state (problem-initial-state problem)
-      :depth 0
-      :g 0
-      :f 0))
-    (list )))
+                    (list (make-node 
+                           :state (problem-initial-state problem)
+                           :depth 0
+                           :g 0
+                           :f 0))
+                    nil))
 
 
 ;
@@ -631,11 +602,11 @@
 ;;;
 (defun solution-path-aux (node path)
   (if (or (null node) (null (node-state node)))
-    path
+      path
     (solution-path-aux (node-parent node) (cons (node-state node) path))))
 
 (defun solution-path (node)
-  (solution-path-aux node '()))
+  (solution-path-aux node nil))
 
 (solution-path nil) ;;; -> NIL 
 (solution-path (a-star-search *galaxy-M35*))  ;;;-> (MALLORY ...)
@@ -644,12 +615,12 @@
 
 (defun action-sequence-aux (node actions) ;se llama con actions vacia en la funcion principal
   (if (or (null node) (null (node-action node)))
-    actions
+      actions
     (action-sequence-aux (node-parent node) (cons (node-action node) actions))));meto las acciones quer me han llevado
-                                                        ;a cada nodo desde el mas profundo hasta que no tenga un predecesor del que sacar acciones
+;a cada nodo desde el mas profundo hasta que no tenga un predecesor del que sacar acciones
 
 (defun action-sequence (node)
-  (action-sequence-aux node '()))
+  (action-sequence-aux node nil))
 
 (action-sequence (a-star-search *galaxy-M35*))
 ;;; ->
@@ -668,8 +639,8 @@
 
 (defun depth-first-node-compare-p (node-1 node-2)
   (if (or (null node-1) (null node-2))
-    NIL
-  (> (node-depth node-1) (node-depth node-2))))
+      NIL
+    (> (node-depth node-1) (node-depth node-2))))
 
 
 (defparameter *depth-first*
@@ -678,13 +649,13 @@
    :node-compare-p 'depth-first-node-compare-p))
 
 
-;(solution-path (graph-search *galaxy-M35* *depth-first*))
+(solution-path (graph-search *galaxy-M35* *depth-first*))
 ;;; -> (MALLORY ... )
 
 (defun breadth-first-node-compare-p (node-1 node-2)
   (if (or (null node-1) (null node-2))
-    NIL
-  (< (node-depth node-1) (node-depth node-2))))
+      NIL
+    (< (node-depth node-1) (node-depth node-2))))
 
 
 (defparameter *breadth-first*
