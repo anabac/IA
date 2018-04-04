@@ -558,7 +558,7 @@
 (defun check-equal-state (node closed-list);en node llamo con el first de open-nodes
   (if (or (null node) (null closed-list))
     NIL
-    (if f-search-state-equal-galaxy (node (first closed-list) *planets-mandatory*)
+    (if (f-search-state-equal-galaxy node (first closed-list) *planets-mandatory*)
       t
       (check-equal-state node (rest closed-list)))))
 
