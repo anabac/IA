@@ -559,7 +559,7 @@
   (if (or (null node) (null closed-list))
     NIL
     (if f-search-state-equal-galaxy (node (first closed-list) *planets-mandatory*)
-      node
+      t
       (check-equal-state node (rest closed-list)))))
 
 
@@ -569,7 +569,7 @@
     (if (funcall (problem-f-goal-test problem) ;si el primer nodo de la lista de abiertos es la meta hemos acabado
                  (first open-nodes)) ;le paso el node como tal, no el state
         (first open-nodes)
-      (if (or (not (check-equal-state (first open-nodes) closed-nodes))
+      (if (or (not (member (first open-nodes) closed-nodes));si no esta en closed nodes
               (equal (first open-nodes) 
                      (first (insert-nodes-strategy (first open-nodes) 
                                                    closed-nodes strategy))))
@@ -678,7 +678,7 @@
    :node-compare-p 'depth-first-node-compare-p))
 
 
-(solution-path (graph-search *galaxy-M35* *depth-first*))
+;(solution-path (graph-search *galaxy-M35* *depth-first*))
 ;;; -> (MALLORY ... )
 
 (defun breadth-first-node-compare-p (node-1 node-2)
