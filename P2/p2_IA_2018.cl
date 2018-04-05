@@ -125,12 +125,12 @@
 ;;    The cost (a number) or NIL if the state is not in the sensor list
 ;;
 (defun f-h-galaxy (state sensors)
-  (unless (null sensors)
+  (unless (null sensors)                      ;; si no hay heuristica para este estado devuelve nil
     (let ((1st-state (caar sensors))
           (1st-h     (cadar sensors)))
-      (if (equal state 1st-state)
-          1st-h
-        (f-h-galaxy state (rest sensors))))))
+      (if (equal state 1st-state)             ;; si esta heuristica es la del estado que busco
+          1st-h                               ;; la devuelvo
+        (f-h-galaxy state (rest sensors)))))) ;; si no, sigo buscando
 
 (f-h-galaxy 'Sirtis *sensors*) ;-> 0
 (f-h-galaxy 'Avalon *sensors*) ;-> 15
@@ -148,20 +148,20 @@
 ;; BEGIN: Exercise 2 -- Navigation operators
 ;;
 (defun navigate (state holes planets-forbidden name)
-  (mapcan #'(lambda (hole)
-              (when (and (equal state (first hole))
-                         (not (member (second hole) planets-forbidden)))
-                (list (make-action :name name
+  (mapcan #'(lambda (hole)                                                ;; para cada agujero
+              (when (and (equal state (first hole))                       ;; si el nodo de partida es el actual
+                         (not (member (second hole) planets-forbidden)))  ;; y el destino no esta prohibido
+                (list (make-action :name name                             ;; crea la accion correspondiente
                                    :origin state
                                    :final (second hole)
                                    :cost (third hole)))))
     holes))
 
 (defun navigate-white-hole (state white-holes)
-  (navigate state white-holes nil 'navigate-white-hole))
+  (navigate state white-holes nil 'navigate-white-hole))  ;; llama a navigate sin planetas prohibidos
 
 (defun navigate-worm-hole (state worm-holes planets-forbidden)
-  (navigate state worm-holes planets-forbidden 'navigate-worm-hole))
+  (navigate state worm-holes planets-forbidden 'navigate-worm-hole))  ;; llama a navigate con los planetas prohibidos
 
 
 (navigate-worm-hole 'Mallory *worm-holes* *planets-forbidden*)  ;-> 
@@ -198,16 +198,16 @@
   (let* ((1st-state        (node-state node))
          (parent           (node-parent node))
          (updated-planets  (remove 1st-state planets)))
-    (cond ((null updated-planets)
-           t)
-          ((null parent)
-           nil)
-          (t
-           (visited-all parent updated-planets)))))
+    (cond ((null updated-planets)                   ;; si no quedan planetas en la lista al sacar el actual
+           t)                                       ;; los ha recorrido todos
+          ((null parent)                            ;; si el planeta actual es el inicial (y aun quedan planetas en la lista, comprobado al pasar de la anterior)
+           nil)                                     ;; no los ha recorrido todos
+          (t                                        ;; si queda camino y quedan nodos en la lista
+           (visited-all parent updated-planets))))) ;; sigue comprobando
 
 (defun f-goal-test-galaxy (node planets-destination planets-mandatory) 
-  (when (member (node-state node) planets-destination)
-    (visited-all node planets-mandatory)))
+  (when (member (node-state node) planets-destination)  ;; si el nodo actual es nodo destino
+    (visited-all node planets-mandatory)))              ;; y se han recorrido todos los obligatorios, entonces es estado final
 
 
 (defparameter node-01
@@ -233,7 +233,7 @@
 ;; BEGIN: Exercise  -- Equal predicate for search states
 ;;
 
-(defun not-visited-mandatory (node planets-mandatory) ;mismo codigo que en la de arriba pero en lugar de una lista devuelvo la lista mandatory sin los planetas por los que se han pasado
+(defun not-visited-mandatory (node planets-mandatory) ;; similar a visited-all, pero devolviendo la lista de planetas no visitados
   (let* ((1st-state        (node-state node))
          (parent           (node-parent node))
          (updated-planets  (remove 1st-state planets-mandatory)))
@@ -247,8 +247,8 @@
 (defun f-search-state-equal-galaxy (node-1 node-2 &optional planets-mandatory)
   (let ((node1 (node-state node-1))
         (node2 (node-state node-2)))
-    (and (equal node1 node2)
-         (equal (not-visited-mandatory node-1 planets-mandatory) (not-visited-mandatory node-2 planets-mandatory)))))
+    (and (equal node1 node2)                                                                                          ;; comprueba si son el mismo nodo
+         (equal (not-visited-mandatory node-1 planets-mandatory) (not-visited-mandatory node-2 planets-mandatory))))) ;; y se han recorrido los mismos obligatorios
 
 (f-search-state-equal-galaxy node-01 node-01) ;-> T
 (f-search-state-equal-galaxy node-01 node-02) ;-> NIL
@@ -304,18 +304,18 @@
 
 (defun expand-node (node problem)
   (unless (or (null node) (null problem))
-    (mapcar #'(lambda (x) (let ((depth (if (node-depth node) 
+    (mapcar #'(lambda (x) (let ((depth (if (node-depth node) ;; para cada posible hijo
                                            (node-depth node) 
                                          0))
-                                (g     (+ (if (node-g node) 
+                                (g     (+ (if (node-g node)  ;g=node-g + cost
                                               (node-g node) 
                                             0 ) 
-                                          (if (action-cost x) ;g=node-g + cost
+                                          (if (action-cost x)
                                               (action-cost x) 
                                             0 )))
                                 (h     (funcall (problem-f-h problem) ;h=sensors
                                                 (action-final x))))
-                            (make-node 
+                            (make-node                       ;; crea un nodo para ese hijo
                              :state (action-final x)
                              :parent node
                              :action x
@@ -394,7 +394,7 @@
    :node-compare-p 'node-compare-by-g))
 
 (defun insert-nodes-strategy (nodes lst-nodes strategy)
-  (sort (append nodes lst-nodes) (strategy-node-compare-p strategy)))
+  (sort (copy-list (append nodes lst-nodes)) (strategy-node-compare-p strategy)))   ;; concatena las listas y las ordena segun la estrategia
 
 
 
@@ -403,7 +403,7 @@
 (defparameter node-02
   (make-node :state 'Kentares :depth 2 :g 50 :f 50) )
 
-(print (insert-nodes-strategy (list node-00 node-01 node-02) ;salen bien pero desordenados
+(print (insert-nodes-strategy (list node-00 node-01 node-02)
                               lst-nodes-00 
                               *uniform-cost*));->
 ;;;(#S(NODE :STATE AVALON 
@@ -534,7 +534,7 @@
 (defun check-equal-state (node closed-list);en node llamo con el first de open-nodes
   (unless (or (null node) (null closed-list))
     (if (and (f-search-state-equal-galaxy node (first closed-list) *planets-mandatory*) ; si son el mismo planeta y llevan los mismos obligatorios recorridos
-             (>= (node-f node) (node-f (first closed-list)))) ; y ademas el nuevo tiene mayor f (entonces no merece la pena explorarlo)
+             (>= (node-g node) (node-g (first closed-list)))) ; y ademas el nuevo tiene mayor g (entonces no merece la pena explorarlo)
         t                                                    ; entonces consideramos que ya esta cerrado
       (check-equal-state node (rest closed-list)))))
 
