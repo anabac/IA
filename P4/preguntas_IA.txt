@@ -1,0 +1,10 @@
+Pregunta C2. ​El jugador llamado bueno sólo se distingue del regular en que expande un nivel más. ¿Por
+qué motivo no es capaz de ganar al regular? Sugiera y pruebe alguna solución que remedie este problema.
+
+Esto puede ocurrir porque el jugador bueno solamente escoge la opcion que maximiza la diferencia entre el numero del lado
+de fichas del contrario y el del jugador en el segundo nivel de profundidad, sin tener en cuenta la opcion tomada en el primer nivel 
+de profundidad; por otra parte el jugador regular maximza la diferencia contraria: la resta entre el numero de fichas en el lado
+del jugador con turno menos las del enemigo, optando por la maxima ganancia a corto plazo para si mismo, y no la minima para el otro, 
+como hace el jugador bueno. Esto puede ocasionar que haya una muy mala jugada para el jugador contrario en la siguiente profundidad, que es lo que intentamos conseguir con el jugador bueno, la jugada mas incomoda para el jugador contrario, pero puede ser que con esta decision tengamos que tomar un camino aun menos recomendable para nosotros en nuestro turno, lo cual no nos conviene y es lo que intenta evitar el jugador regular, maximizando sus ganancias a corto plazo.
+
+Una forma de paliar el que el jugador bueno no gane al regular debido a esta diferencia en la eleccion de la heuristica seria aunar ambas comprobaciones, minimizando la ganancia a corto plazo del jugador enemigo y maximizando la nuestra al mayor corto plazo posible tambiés, con lo que exploraríamos tanto a profundidad 1 como a profundidad 2, tomando la mejor decision posible hasta el maximo de profundidad 2.
